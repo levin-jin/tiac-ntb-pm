@@ -1347,10 +1347,10 @@ const RPT_CSS = `
 .report-page, .report-page * { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
 .avoid-break { break-inside:avoid; page-break-inside:avoid; }
 `;
-function ReportHeader({ t, title, date, preparedBy }) {
+function ReportHeader({ t, title, date, preparedBy, checkedBy }) {
   const d = /* @__PURE__ */ new Date(date + "T00:00:00");
   const dateStr = isNaN(d) ? date : d.toLocaleDateString("en-GB", { weekday: "long", day: "2-digit", month: "long", year: "numeric" });
-  return /* @__PURE__ */ React.createElement("div", { className: "avoid-break mb-3" }, /* @__PURE__ */ React.createElement("div", { className: "flex items-stretch justify-between gap-4" }, /* @__PURE__ */ React.createElement("div", { className: "flex items-center gap-3" }, /* @__PURE__ */ React.createElement("div", { className: "shrink-0 grid place-items-center rounded-lg text-white font-black text-[15px] tracking-wide", style: { width: 52, height: 52, background: "linear-gradient(135deg,#1B2A4E,#3B5BDB)" } }, "TIA"), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("div", { className: "text-[21px] font-black tracking-wide leading-tight", style: { color: "#1B2A4E" } }, "T.I.A CONSTRUCTION"), /* @__PURE__ */ React.createElement("div", { className: "text-[12px] font-bold text-slate-700 mt-0.5" }, t.projectName), /* @__PURE__ */ React.createElement("div", { className: "text-[10px] text-slate-500" }, PROJECT_ADDRESS))), /* @__PURE__ */ React.createElement("div", { className: "shrink-0 text-right rounded-lg px-3 py-2", style: { background: "#EEF2FF", border: "1px solid #C7D2FE" } }, /* @__PURE__ */ React.createElement("div", { className: "text-[17px] font-black uppercase tracking-wide leading-tight", style: { color: "#3B5BDB" } }, title), /* @__PURE__ */ React.createElement("div", { className: "text-[11px] font-bold text-slate-700 mt-1" }, dateStr), preparedBy && /* @__PURE__ */ React.createElement("div", { className: "text-[9.5px] text-slate-500" }, "Prepared by: ", preparedBy))), /* @__PURE__ */ React.createElement("div", { className: "mt-2.5", style: { height: 4, background: "#3B5BDB", borderRadius: 2 } }), /* @__PURE__ */ React.createElement("div", { className: "mt-[2px]", style: { height: 1, background: "#1B2A4E" } }));
+  return /* @__PURE__ */ React.createElement("div", { className: "avoid-break mb-4" }, /* @__PURE__ */ React.createElement("div", { className: "flex items-stretch justify-between gap-4" }, /* @__PURE__ */ React.createElement("div", { className: "flex items-center gap-3" }, /* @__PURE__ */ React.createElement("div", { className: "shrink-0 grid place-items-center rounded-lg text-white font-black text-[15px] tracking-wide", style: { width: 52, height: 52, background: "linear-gradient(135deg,#1B2A4E,#3B5BDB)" } }, "TIA"), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("div", { className: "text-[21px] font-black tracking-wide leading-tight", style: { color: "#1B2A4E" } }, "T.I.A CONSTRUCTION"), /* @__PURE__ */ React.createElement("div", { className: "text-[12px] font-bold text-slate-700 mt-0.5" }, t.projectName), /* @__PURE__ */ React.createElement("div", { className: "text-[10px] text-slate-500" }, PROJECT_ADDRESS))), /* @__PURE__ */ React.createElement("div", { className: "shrink-0 text-right rounded-lg px-3 py-2", style: { background: "#EEF2FF", border: "1px solid #C7D2FE" } }, /* @__PURE__ */ React.createElement("div", { className: "text-[17px] font-black uppercase tracking-wide leading-tight", style: { color: "#3B5BDB" } }, title), /* @__PURE__ */ React.createElement("div", { className: "text-[11px] font-bold text-slate-700 mt-1" }, dateStr), (preparedBy || checkedBy) && /* @__PURE__ */ React.createElement("div", { className: "mt-0.5 text-[9.5px] text-slate-500 leading-snug" }, preparedBy ? "Prepared by: " + preparedBy : null, preparedBy && checkedBy ? "  |  " : null, checkedBy ? "Checked by: " + checkedBy : null))), /* @__PURE__ */ React.createElement("div", { className: "mt-2.5", style: { height: 4, background: "#3B5BDB", borderRadius: 2 } }), /* @__PURE__ */ React.createElement("div", { className: "mt-[2px]", style: { height: 1, background: "#1B2A4E" } }));
 }
 class ModalBoundary extends React.Component {
   constructor(p) {
@@ -1371,11 +1371,68 @@ class ModalBoundary extends React.Component {
     );
   }
 }
-function PrintModal({ title, onClose, t, isKm, defaultOrientation = "portrait", preparedBy, extra, toolbarRow, children }) {
+const PAPER_MM = { A5: [148, 210], A4: [210, 297], A3: [297, 420] };
+const MARGIN_KEY = "tia-report-margins";
+const MARGIN_PRESETS = [["Normal", "ធម្មតា", { t: 12, b: 14, l: 12, r: 12 }], ["Narrow", "តូច", { t: 8, b: 10, l: 8, r: 8 }], ["Wide", "ធំ", { t: 20, b: 20, l: 20, r: 20 }]];
+const isMobileDevice = () => /Android|iPhone|iPad|iPod|Mobile|Opera Mini/i.test(navigator.userAgent) || (navigator.maxTouchPoints > 1 && window.innerWidth < 1000);
+function collectCss() {
+  let out = "";
+  Array.from(document.styleSheets).forEach((ss) => {
+    try {
+      out += Array.from(ss.cssRules).map((r) => r.cssText).join("\n") + "\n";
+    } catch (e) {
+    }
+  });
+  return out;
+}
+function PrintModal({ title, onClose, t, isKm, defaultOrientation = "portrait", preparedBy, currentUser, extra, toolbarRow, children }) {
+  const h = React.createElement;
   const [size, setSize] = useState("A4");
   const [orient, setOrient] = useState(defaultOrientation);
   const [date, setDate] = useState(() => (/* @__PURE__ */ new Date()).toISOString().slice(0, 10));
   const [vw, setVw] = useState(window.innerWidth);
+  const [mobile] = useState(() => isMobileDevice());
+  const [showSet, setShowSet] = useState(() => !isMobileDevice());
+  const pageRef = useRef(null);
+  const [m, setM] = useState(() => {
+    const base = { t: 12, b: 14, l: 12, r: 12 };
+    try {
+      const sv = JSON.parse(localStorage.getItem(MARGIN_KEY));
+      if (sv) ["t", "b", "l", "r"].forEach((k) => {
+        if (typeof sv[k] === "number") base[k] = sv[k];
+      });
+    } catch (e) {
+    }
+    return base;
+  });
+  useEffect(() => {
+    try {
+      localStorage.setItem(MARGIN_KEY, JSON.stringify(m));
+    } catch (e) {
+    }
+  }, [m]);
+  const [signers, setSigners] = useState(() => {
+    const base = { prepared: { name: preparedBy || currentUser && currentUser.name || "", pos: "" }, checked: { name: "", pos: "" }, approved: { name: "", pos: "" } };
+    try {
+      const sv = JSON.parse(localStorage.getItem(SIGNERS_KEY));
+      if (sv) SIGNER_ROLES.forEach(([k]) => {
+        if (sv[k]) {
+          if (sv[k].name) base[k].name = sv[k].name;
+          if (sv[k].pos) base[k].pos = sv[k].pos;
+        }
+      });
+    } catch (e) {
+    }
+    return base;
+  });
+  useEffect(() => {
+    try {
+      localStorage.setItem(SIGNERS_KEY, JSON.stringify(signers));
+    } catch (e) {
+    }
+  }, [signers]);
+  const updS = (k, f, v) => setSigners((p) => __spreadProps(__spreadValues({}, p), { [k]: __spreadProps(__spreadValues({}, p[k]), { [f]: v }) }));
+  const setMg = (k, v) => setM((p) => __spreadProps(__spreadValues({}, p), { [k]: Math.max(0, Math.min(40, Number(v) || 0)) }));
   useEffect(() => {
     const f = () => setVw(window.innerWidth);
     window.addEventListener("resize", f);
@@ -1388,12 +1445,67 @@ function PrintModal({ title, onClose, t, isKm, defaultOrientation = "portrait", 
       if (wasDark) html.classList.add("dark");
     };
   }, []);
-  const logical = orient === "portrait" ? 730 : 1058;
-  const zf = size === "A3" ? 1.4142 : size === "A5" ? 0.68 : 1;
-  const fit = Math.min(1, (vw - 16) / (logical * zf));
+  const MM = 96 / 25.4;
+  const [pw, ph] = PAPER_MM[size];
+  const land = orient === "landscape";
+  const Wmm = land ? ph : pw, Hmm = land ? pw : ph;
+  const zf = pw / 210;
+  const contentPx = Math.round((Wmm - m.l - m.r) / zf * MM);
+  const paperPx = Math.round(Wmm / zf * MM);
+  const paperH = Math.round(Hmm / zf * MM);
+  const pad = (k) => Math.round(m[k] / zf * MM);
+  const logical = contentPx;
+  const fit = Math.min(1, (vw - 16) / (paperPx * zf));
+  const pageCss = `@page { size: ${size} ${orient}; margin: ${m.t}mm ${m.r}mm ${m.b}mm ${m.l}mm; @bottom-right { content: "Page " counter(page) " / " counter(pages); font: 8pt sans-serif; color: #64748b; } }
+.report-page{box-sizing:border-box;position:relative;width:${paperPx}px;min-height:${paperH}px;padding:${pad("t")}px ${pad("r")}px ${pad("b")}px ${pad("l")}px}
+@media print{.report-page{width:${contentPx}px !important;min-height:0 !important;padding:0 !important}.report-fit{width:auto !important}}`;
+  const fname = `${String(title).trim().replace(/\s+/g, "-")}_${date}_${size}`;
+  const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  const buildStandalone = () => {
+    const node = pageRef.current;
+    if (!node) return "";
+    const hint = isKm ? "ចុច Print ➜ ជ្រើស Save as PDF (ឬ Share ➜ Print)" : "Tap Print \u2192 choose Save as PDF (or Share \u2192 Print)";
+    return `<!DOCTYPE html><html lang="km" class="${document.documentElement.className.replace(/\bdark\b/g, "")}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${esc(fname)}</title><link href="https://fonts.googleapis.com/css2?family=Battambang&display=swap" rel="stylesheet"><style>${collectCss()}</style><style>${pageCss}
+body{margin:0;background:#cbd5e1;color:#0f172a}
+.pv-bar{position:sticky;top:0;z-index:50;background:#fff;border-bottom:1px solid #cbd5e1;padding:8px 10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;font:600 13px sans-serif}
+.pv-bar button{padding:9px 16px;border-radius:8px;border:0;background:#2563eb;color:#fff;font:700 14px sans-serif}
+.pv-bar button.sec{background:#fff;color:#334155;border:1px solid #cbd5e1}
+.pv-wrap{margin:10px auto}
+.report-page, .report-page * { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+.avoid-break{break-inside:avoid;page-break-inside:avoid}
+@media print{.pv-bar,.no-print{display:none !important}html,body{background:#fff !important}.pv-wrap{zoom:1 !important;margin:0 !important;width:auto !important}.report-page{box-shadow:none !important}}
+</style></head><body class="${document.body.className.replace(/\breport-open\b/g, "")}"><div class="pv-bar no-print"><button onclick="window.print()">\u{1F5A8} Print / PDF</button><button class="sec" onclick="window.close()">\u2715</button><span style="font-weight:400;color:#64748b;font-size:11px">${esc(hint)}</span></div><div class="pv-wrap" id="pv" style="width:${paperPx * zf}px">${node.outerHTML}</div><script>(function(){var w=document.getElementById("pv");function fit(){w.style.zoom=Math.min(1,(window.innerWidth-16)/${paperPx * zf})}fit();window.addEventListener("resize",fit);})();<\/script></body></html>`;
+  };
+  const openStandalone = () => {
+    const html = buildStandalone();
+    if (!html) return;
+    const w = window.open("", "_blank");
+    if (w) {
+      w.document.open();
+      w.document.write(html);
+      w.document.close();
+      return;
+    }
+    try {
+      const blob = new Blob([html], { type: "text/html" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = fname + ".html";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(a.href), 4e3);
+      alert(isKm ? "Browser រារាំងការបើកទំព័រថ្មី។ File ត្រូវបាន Download — សូមបើក File នោះ រួចចុច Print។" : "Pop-up blocked. A file was downloaded \u2014 open it and tap Print.");
+    } catch (e) {
+    }
+  };
   const doPrint = () => {
+    if (mobile) {
+      openStandalone();
+      return;
+    }
     const old = document.title;
-    document.title = `${String(title).trim().replace(/\s+/g, "-")}_${date}_${size}`;
+    document.title = fname;
     const restore = () => {
       document.title = old;
       window.removeEventListener("afterprint", restore);
@@ -1402,9 +1514,46 @@ function PrintModal({ title, onClose, t, isKm, defaultOrientation = "portrait", 
     setTimeout(restore, 12e4);
     window.print();
   };
-  const seg = (cur, set, opts) => /* @__PURE__ */ React.createElement("div", { className: "inline-flex rounded-md bg-slate-100 p-0.5 font-bold" }, opts.map(([k, lb]) => /* @__PURE__ */ React.createElement("button", { key: k, onClick: () => set(k), className: `px-2.5 py-1 rounded ${cur === k ? "bg-white shadow text-blue-600" : "text-slate-500"}` }, lb)));
+  const seg = (cur, set, opts) => h("div", { className: "inline-flex rounded-md bg-slate-100 p-0.5 font-bold" }, opts.map(([k, lb]) => h("button", { key: k, onClick: () => set(k), className: `px-2.5 py-1 rounded ${cur === k ? "bg-white shadow text-blue-600" : "text-slate-500"}` }, lb)));
+  const inp = "border border-slate-300 rounded px-1.5 py-1 font-normal bg-white min-w-0";
+  const mLabels = [["t", isKm ? "ខាងលើ" : "Top"], ["b", isKm ? "ខាងក្រោម" : "Bottom"], ["l", isKm ? "ឆ្វេង" : "Left"], ["r", isKm ? "ស្តាំ" : "Right"]];
+  const marginRow = h("div", { className: "flex flex-wrap items-center gap-2 rounded-md border border-slate-200 bg-slate-50 px-2 py-1" }, h("span", { className: "font-black text-[10px] text-slate-500 uppercase" }, isKm ? "គម្លាតគែមក្រដាស (mm)" : "Paper margins (mm)"), mLabels.map(([k, lb]) => h("label", { key: k, className: "flex items-center gap-1 font-bold text-slate-600" }, lb, h("input", { type: "number", min: 0, max: 40, step: 1, value: m[k], onChange: (e) => setMg(k, e.target.value), className: inp + " w-14 text-center" }))), h("span", { className: "flex items-center gap-1" }, MARGIN_PRESETS.map(([en, km, v]) => h("button", { key: en, onClick: () => setM(v), className: "px-2 py-1 rounded border border-slate-300 bg-white font-bold text-slate-600" }, isKm ? km : en))));
+  const signRow = h("div", { className: "basis-full grid grid-cols-1 md:grid-cols-3 gap-2" }, SIGNER_ROLES.map(([k, en, km]) => h("div", { key: k, className: "flex items-center gap-1 rounded-md border border-slate-200 bg-slate-50 px-2 py-1" }, h("span", { className: "font-black text-[10px] text-slate-500 uppercase shrink-0", style: { width: 66 } }, isKm ? km : en), h("input", { value: signers[k].name, onChange: (e) => updS(k, "name", e.target.value), placeholder: isKm ? "ឈ្មោះ" : "Name", className: inp + " flex-1" }), h("input", { value: signers[k].pos, onChange: (e) => updS(k, "pos", e.target.value), placeholder: isKm ? "តួនាទី" : "Position", className: inp, style: { width: 120 } }))));
+  const hintTxt = mobile ? isKm ? "លើទូរស័ព្ទ៖ ចុច Print នឹងបើកទំព័រថ្មី ➜ ចុចប៊ូតុង Print ➜ ជ្រើស Save as PDF" : "On phone: Print opens a print page \u2192 tap Print \u2192 choose Save as PDF" : isKm ? 'ក្នុងផ្ទាំង Print ជ្រើស Destination = "Save as PDF" ដើម្បីបាន File PDF។' : 'In the print dialog choose Destination = "Save as PDF" to get a PDF file.';
   return ReactDOM.createPortal(
-    /* @__PURE__ */ React.createElement("div", { id: "report-overlay", className: "fixed inset-0 z-[70] bg-slate-300 overflow-auto text-slate-900" }, /* @__PURE__ */ React.createElement("style", null, `@page { size: ${size} ${orient}; margin: 8mm 8mm 11mm 8mm; @bottom-right { content: "Page " counter(page) " / " counter(pages); font: 8pt sans-serif; color: #64748b; } }${RPT_CSS}`), /* @__PURE__ */ React.createElement("div", { className: "no-print sticky top-0 z-10 bg-white border-b border-slate-300 px-3 py-2 flex flex-wrap items-center gap-2 text-xs" }, /* @__PURE__ */ React.createElement("div", { className: "font-black uppercase text-blue-700 mr-1" }, title), seg(size, setSize, [["A5", "A5"], ["A4", "A4"], ["A3", "A3"]]), seg(orient, setOrient, [["portrait", isKm ? "\u1794\u1789\u17D2\u1788\u179A" : "Portrait"], ["landscape", isKm ? "\u1795\u17D2\u178A\u17C1\u1780" : "Landscape"]]), /* @__PURE__ */ React.createElement("label", { className: "flex items-center gap-1 font-bold text-slate-600" }, isKm ? "\u1790\u17D2\u1784\u17C3" : "Date", /* @__PURE__ */ React.createElement("input", { type: "date", value: date, onChange: (e) => setDate(e.target.value), className: "border border-slate-300 rounded px-1.5 py-1 font-normal" })), extra, /* @__PURE__ */ React.createElement("span", { className: "flex-1" }), /* @__PURE__ */ React.createElement("button", { onClick: doPrint, className: "px-4 py-1.5 rounded-md bg-blue-600 text-white font-bold flex items-center gap-1.5" }, /* @__PURE__ */ React.createElement(Icon, { name: "Printer", size: 14 }), isKm ? "Print / \u179A\u1780\u17D2\u179F\u17B6\u1791\u17BB\u1780 PDF" : "Print / Save as PDF"), /* @__PURE__ */ React.createElement("button", { onClick: onClose, className: "px-3 py-1.5 rounded-md border border-slate-300 font-bold" }, isKm ? "\u1794\u17B7\u1791" : "Close"), toolbarRow, /* @__PURE__ */ React.createElement("div", { className: "basis-full text-[10px] text-slate-500" }, isKm ? '\u1780\u17D2\u1793\u17BB\u1784\u1795\u17D2\u1791\u17B6\u17C6\u1784 Print \u1787\u17D2\u179A\u17BE\u179F Destination = "Save as PDF" \u178A\u17BE\u1798\u17D2\u1794\u17B8\u1794\u17B6\u1793 File PDF\u17D4' : 'In the print dialog choose Destination = "Save as PDF" to get a PDF file.')), /* @__PURE__ */ React.createElement("div", { className: "report-fit mx-auto my-3", style: { zoom: fit, width: logical * zf } }, /* @__PURE__ */ React.createElement("div", { className: "report-page bg-white shadow-xl", style: { width: logical, zoom: zf } }, /* @__PURE__ */ React.createElement(ReportHeader, { t, title, date, preparedBy }), children({ logical, date, size, orient }), /* @__PURE__ */ React.createElement("div", { className: "mt-4 pt-2 border-t border-slate-300 text-[9px] text-slate-400 flex justify-between", style: { breakBefore: "avoid" } }, /* @__PURE__ */ React.createElement("span", null, "T.I.A Document Hub"), /* @__PURE__ */ React.createElement("span", null, PROJECT_ADDRESS))))),
+    h(
+      "div",
+      { id: "report-overlay", className: "fixed inset-0 z-[70] bg-slate-300 overflow-auto text-slate-900" },
+      h("style", null, pageCss + RPT_CSS),
+      h(
+        "div",
+        { className: "no-print sticky top-0 z-10 bg-white border-b border-slate-300 px-3 py-2 flex flex-wrap items-center gap-2 text-xs", style: { maxHeight: "70vh", overflowY: "auto" } },
+        h("div", { className: "font-black uppercase text-blue-700 mr-1" }, title),
+        seg(size, setSize, [["A5", "A5"], ["A4", "A4"], ["A3", "A3"]]),
+        seg(orient, setOrient, [["portrait", isKm ? "បញ្ឈរ" : "Portrait"], ["landscape", isKm ? "ផ្ដេក" : "Landscape"]]),
+        h("label", { className: "flex items-center gap-1 font-bold text-slate-600" }, isKm ? "ថ្ងៃ" : "Date", h("input", { type: "date", value: date, onChange: (e) => setDate(e.target.value), className: inp })),
+        extra,
+        h("span", { className: "flex-1" }),
+        h("button", { onClick: () => setShowSet(!showSet), className: "px-3 py-1.5 rounded-md border border-slate-300 font-bold" }, "\u2699 ", isKm ? "កំណត់" : "Settings"),
+        h("button", { onClick: doPrint, className: "px-4 py-1.5 rounded-md bg-blue-600 text-white font-bold flex items-center gap-1.5" }, h(Icon, { name: "Printer", size: 14 }), isKm ? "Print / រក្សាទុក PDF" : "Print / Save as PDF"),
+        h("button", { onClick: onClose, className: "px-3 py-1.5 rounded-md border border-slate-300 font-bold" }, isKm ? "បិទ" : "Close"),
+        showSet && h(React.Fragment, null, h("div", { className: "basis-full" }, marginRow), signRow, toolbarRow, !mobile && h("button", { onClick: openStandalone, className: "px-2.5 py-1 rounded border border-slate-300 bg-white font-bold text-slate-600", title: isKm ? "បើកទំព័រ Print ដាច់ដោយឡែក (ប្រើបានលើទូរស័ព្ទ)" : "Open stand-alone print page (works on phones)" }, "\u{1F4C4} ", isKm ? "ទំព័រ Print ដាច់ដោយឡែក" : "Stand-alone print page")),
+        h("div", { className: "basis-full text-[10px] text-slate-500" }, hintTxt)
+      ),
+      h(
+        "div",
+        { className: "report-fit mx-auto my-3", style: { zoom: fit, width: paperPx * zf } },
+        h(
+          "div",
+          { ref: pageRef, className: "report-page bg-white shadow-xl", style: { zoom: zf } },
+          h("div", { className: "no-print", style: { position: "absolute", left: pad("l"), right: pad("r"), top: pad("t"), bottom: pad("b"), border: "1px dashed #94A3B8", opacity: 0.55, pointerEvents: "none" } }),
+          h(ReportHeader, { t, title, date, preparedBy: signers.prepared.name, checkedBy: signers.checked.name }),
+          children({ logical, date, size, orient }),
+          h("div", { className: "mt-4" }, h(ReportSignatures, { signers, isKm })),
+          h("div", { className: "mt-3 pt-1.5 text-[9px] text-slate-500 flex justify-between", style: { breakBefore: "avoid", borderTop: "1px solid #94A3B8" } }, h("span", null, "T.I.A Document Hub"), h("span", null, PROJECT_ADDRESS))
+        )
+      )
+    ),
     document.body
   );
 }
@@ -1458,7 +1607,7 @@ function DailyReport({ r, ctx, signers }) {
   )), /* @__PURE__ */ React.createElement(RSec, { title: isKm ? "\u1791\u17B8\u178F\u17B6\u17C6\u1784\u1782\u1798\u17D2\u179A\u17C4\u1784 \u1793\u17B7\u1784\u17A2\u17B6\u1780\u17B6\u179F\u1792\u17B6\u178F\u17BB" : "Project Location & Weather" }, /* @__PURE__ */ React.createElement("div", { className: "grid grid-cols-2 gap-3 text-[10px]" }, /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("div", { className: "font-bold text-[11px]" }, PROJECT_ADDRESS), /* @__PURE__ */ React.createElement("div", { className: "text-slate-600 mt-1" }, "GPS: ", LOC.lat, ", ", LOC.lon), /* @__PURE__ */ React.createElement("div", { className: "text-slate-500 break-all" }, "https://maps.google.com/?q=", LOC.lat, ",", LOC.lon)), /* @__PURE__ */ React.createElement("div", null, cur ? /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("div", { className: "font-bold text-[11px]" }, WX(cur.weather_code), " ", Math.round(cur.temperature_2m), "\xB0C \xB7 ", isKm ? "\u179F\u17C6\u178E\u17BE\u1798" : "Humidity", " ", cur.relative_humidity_2m, "% \xB7 ", isKm ? "\u1781\u17D2\u1799\u179B\u17CB" : "Wind", " ", Math.round(cur.wind_speed_10m), " km/h"), daily && /* @__PURE__ */ React.createElement("div", { className: "flex gap-1.5 mt-1.5" }, daily.time.slice(0, 5).map((d, i) => /* @__PURE__ */ React.createElement("div", { key: d, className: "flex-1 text-center rounded border border-slate-200 py-0.5" }, /* @__PURE__ */ React.createElement("div", { className: "text-[8px] text-slate-500" }, d.slice(5)), /* @__PURE__ */ React.createElement("div", null, WX(daily.weather_code[i])), /* @__PURE__ */ React.createElement("div", { className: "text-[8px] font-bold" }, Math.round(daily.temperature_2m_max[i]), "\xB0/", Math.round(daily.temperature_2m_min[i]), "\xB0"))))) : /* @__PURE__ */ React.createElement("div", { className: "text-slate-500" }, weather && weather.error ? isKm ? "\u1798\u17B7\u1793\u17A2\u17B6\u1785\u1791\u17B6\u1789\u17A2\u17B6\u1780\u17B6\u179F\u1792\u17B6\u178F\u17BB" : "Weather unavailable" : "\u2026")))), /* @__PURE__ */ React.createElement(RSec, { title: t.droneGalleryTitle, accent: "#8B5CF6", breakable: true }, photos.length === 0 ? /* @__PURE__ */ React.createElement("div", { className: "text-[10px] text-slate-500" }, "\u2014") : /* @__PURE__ */ React.createElement("div", { className: "grid gap-2", style: { gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` } }, photos.map((p, i) => {
     const kind = linkKind(p.link);
     return /* @__PURE__ */ React.createElement("div", { key: i, className: "avoid-break" }, /* @__PURE__ */ React.createElement("div", { className: "aspect-video rounded border border-slate-300 overflow-hidden bg-slate-100" }, p.url ? /* @__PURE__ */ React.createElement("img", { src: p.url, alt: "", className: "w-full h-full object-cover" }) : /* @__PURE__ */ React.createElement(LinkTile, { kind: kind || "Link", small: true })), /* @__PURE__ */ React.createElement("div", { className: "text-[9px] mt-0.5 leading-tight font-semibold" }, i + 1, ". ", p.caption), p.link && /* @__PURE__ */ React.createElement("div", { className: "text-[7.5px] text-slate-500 break-all leading-tight" }, kind, ": ", p.link));
-  }))), /* @__PURE__ */ React.createElement(ReportSignatures, { signers, isKm }));
+  }))));
 }
 const SIGNERS_KEY = "tia-report-signers";
 const SIGNER_ROLES = [["prepared", "Prepared by", "\u179A\u17C0\u1794\u1785\u17C6\u178A\u17C4\u1799"], ["checked", "Checked by", "\u178F\u17D2\u179A\u17BD\u178F\u1796\u17B7\u1793\u17B7\u178F\u17D2\u1799\u178A\u17C4\u1799"], ["approved", "Approved by", "\u17A2\u1793\u17BB\u1798\u17D0\u178F\u178A\u17C4\u1799"]];
@@ -1469,27 +1618,7 @@ function ReportSignatures({ signers, isKm }) {
   })));
 }
 function DailyReportModal({ t, isKm, currentUser, onClose, r }) {
-  const [signers, setSigners] = useState(() => {
-    const base = { prepared: { name: currentUser && currentUser.name || "", pos: "" }, checked: { name: "", pos: "" }, approved: { name: "", pos: "" } };
-    try {
-      const sv = JSON.parse(localStorage.getItem(SIGNERS_KEY));
-      if (sv) SIGNER_ROLES.forEach(([k]) => {
-        if (sv[k]) base[k] = { name: sv[k].name || "", pos: sv[k].pos || "" };
-      });
-    } catch (e) {
-    }
-    return base;
-  });
-  useEffect(() => {
-    try {
-      localStorage.setItem(SIGNERS_KEY, JSON.stringify(signers));
-    } catch (e) {
-    }
-  }, [signers]);
-  const upd = (k, f, v) => setSigners((p) => __spreadProps(__spreadValues({}, p), { [k]: __spreadProps(__spreadValues({}, p[k]), { [f]: v }) }));
-  const inp = "border border-slate-300 rounded px-1.5 py-1 font-normal bg-white min-w-0";
-  const row = /* @__PURE__ */ React.createElement("div", { className: "basis-full grid grid-cols-1 md:grid-cols-3 gap-2" }, SIGNER_ROLES.map(([k, en, km]) => /* @__PURE__ */ React.createElement("div", { key: k, className: "flex items-center gap-1 rounded-md border border-slate-200 bg-slate-50 px-2 py-1" }, /* @__PURE__ */ React.createElement("span", { className: "font-black text-[10px] text-slate-500 uppercase shrink-0", style: { width: 66 } }, isKm ? km : en), /* @__PURE__ */ React.createElement("input", { value: signers[k].name, onChange: (e) => upd(k, "name", e.target.value), placeholder: isKm ? "\u1788\u17D2\u1798\u17C4\u17C7" : "Name", className: inp + " flex-1" }), /* @__PURE__ */ React.createElement("input", { value: signers[k].pos, onChange: (e) => upd(k, "pos", e.target.value), placeholder: isKm ? "\u178F\u17BD\u1793\u17B6\u1791\u17B8" : "Position", className: inp, style: { width: 130 } }))));
-  return /* @__PURE__ */ React.createElement(PrintModal, { title: "DAILY REPORT", t, isKm, preparedBy: signers.prepared.name, onClose, toolbarRow: row }, (ctx) => /* @__PURE__ */ React.createElement(DailyReport, { ctx, r, signers }));
+  return /* @__PURE__ */ React.createElement(PrintModal, { title: "DAILY REPORT", t, isKm, currentUser, onClose }, (ctx) => /* @__PURE__ */ React.createElement(DailyReport, { ctx, r, signers: {} }));
 }
 const isoOf = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 const todayISO = () => isoOf(/* @__PURE__ */ new Date());
