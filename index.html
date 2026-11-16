@@ -52,6 +52,12 @@ const GUEST = { id: "guest", name: "Guest Viewer", email: "View only (Dashboard)
    ទុកជាទិន្នន័យ SVG; ហៅប្រើដោយ <Icon name="Lock" />
    ===================================================================== */
 const ICONS = {
+  Printer: [["path", { d: "M6 9V2h12v7" }], ["path", { d: "M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" }], ["rect", { x: "6", y: "14", width: "12", height: "8" }]],
+  Maximize: [["path", { d: "M8 3H5a2 2 0 0 0-2 2v3" }], ["path", { d: "M21 8V5a2 2 0 0 0-2-2h-3" }], ["path", { d: "M3 16v3a2 2 0 0 0 2 2h3" }], ["path", { d: "M16 21h3a2 2 0 0 0 2-2v-3" }]],
+  Plus: [["path", { d: "M5 12h14" }], ["path", { d: "M12 5v14" }]],
+  LinkIcon: [["path", { d: "M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" }], ["path", { d: "M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" }]],
+  RotateCw: [["path", { d: "M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8" }], ["path", { d: "M21 3v5h-5" }]],
+  Pencil: [["path", { d: "M12 20h9" }], ["path", { d: "M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z" }]],
   Activity: [ [ "path", { d: "M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2" } ] ],
   Calendar: [ ["path", { d: "M8 2v4" }], ["path", { d: "M16 2v4" }], ["rect", { width: "18", height: "18", x: "3", y: "4", rx: "2" }], ["path", { d: "M3 10h18" }] ],
   ChartColumn: [ ["path", { d: "M3 3v16a2 2 0 0 0 2 2h16" }], ["path", { d: "M18 17V9" }], ["path", { d: "M13 17V5" }], ["path", { d: "M8 17v-3" }] ],
@@ -132,7 +138,7 @@ const translations = {
     saveChanges: "Save Changes",
     sCurveTitle: "S-Curve Progress",
     masterScheduleTitle: "Master schedule milestones in progress",
-    droneGalleryTitle: "Real Site Aerial Drone Inspection",
+    droneGalleryTitle: "Real Site Photo & Drone Inspection",
     subCategoryHeading: "Sub-Folders Navigation",
     lightScheme: "Day Mode",
     darkScheme: "Night Mode",
@@ -204,7 +210,7 @@ const translations = {
     saveChanges: "រក្សាទុកការកែប្រែ",
     sCurveTitle: "ក្រាប S-Curve ដំណើរការគម្រោង",
     masterScheduleTitle: "តារាងតាមដានកាលវិភាគការងារកំពុងដំណើរការ",
-    droneGalleryTitle: "រូបភាពដ្រូនពិនិត្យការដ្ឋានជាក់ស្តែង (៥ រូបថត)",
+    droneGalleryTitle: "រូបថតការដ្ឋាន និងដ្រូនពិនិត្យជាក់ស្តែង (Real Site Photo & Drone Inspection)",
     subCategoryHeading: "ផ្នែករងប្រព័ន្ធឯកសារ",
     lightScheme: "ពន្លឺ (Day Mode)",
     darkScheme: "ងងឹត (Night Mode)",
@@ -298,8 +304,8 @@ const categories = [
     label: "Requisition",
     labelKm: "លិខិតស្នើសុំសម្ភារ",
     icon: "FileText",
-    subFolders: ["Purchase Request", "Material Request", "Sub-Con Request", "Prepare Request", "General Request", "Tracking List Requisition"],
-    subFoldersKm: ["ស្នើសុំទិញ", "ស្នើសុំសម្ភារ", "ស្នើសុំម៉ៅការបន្ត", "រៀបចំលិខិតស្នើសុំ", "លិខិតស្នើសុំទូទៅ", "បញ្ជីតាមដានសំណើ"]
+    subFolders: ["Request Tracking", "Purchase Request", "Material Request", "Sub-Con Request", "Prepare Request", "General Request", "Tracking List Requisition"],
+    subFoldersKm: ["តាមដានសំណើ (Tracking)", "ស្នើសុំទិញ", "ស្នើសុំសម្ភារ", "ស្នើសុំម៉ៅការបន្ត", "រៀបចំលិខិតស្នើសុំ", "លិខិតស្នើសុំទូទៅ", "បញ្ជីតាមដានសំណើ"]
   },
   {
     key: "catDrone",
@@ -311,19 +317,19 @@ const categories = [
   },
   {
     key: "catLeave",
-    label: "Leave Records",
-    labelKm: "កំណត់ត្រាច្បាប់ឈប់សម្រាក",
+    label: "Leave Record & To-Do List",
+    labelKm: "កំណត់ត្រាច្បាប់ និងបញ្ជីការងារ",
     icon: "Users",
-    subFolders: ["Leave Applications", "Monthly Leave Summary"],
-    subFoldersKm: ["ពាក្យសុំច្បាប់", "សរុបវត្តមានប្រចាំខែ"]
+    subFolders: ["Calendar & To-Do", "Leave Applications", "Monthly Leave Summary"],
+    subFoldersKm: ["ប្រតិទិន និងបញ្ជីការងារ", "ពាក្យសុំច្បាប់", "សរុបវត្តមានប្រចាំខែ"]
   },
   {
     key: "catWarehouse",
     label: "Warehouse",
     labelKm: "ឯកសារឃ្លាំង",
     icon: "Package",
-    subFolders: ["Stock In / Out", "Inventory Tracking"],
-    subFoldersKm: ["ទំនិញចូល / ចេញ", "ការតាមដានស្តុកសម្ភារ"]
+    subFolders: ["Stock Management", "Stock In / Out", "Inventory Tracking"],
+    subFoldersKm: ["គ្រប់គ្រងស្តុក (Stock)", "ទំនិញចូល / ចេញ", "ការតាមដានស្តុកសម្ភារ"]
   },
   {
     key: "catMeeting",
@@ -597,14 +603,14 @@ const guessFormat = (name) => {            // ទាយ Format ពីកន្�
 };
 
 // កាត់រូបស្វ័យប្រវត្តិទៅ 16:9 (800x450) ពីកណ្តាលរូប
-function cropImage(file, w = 800, h = 450) {
+function cropImage(file, w = 800, h = 450, q = 0.82) {
   return new Promise((ok) => {
     const img = new Image();
     img.onload = () => {
       const c = document.createElement("canvas"); c.width = w; c.height = h;
       const k = Math.max(w / img.width, h / img.height), sw = w / k, sh = h / k;
       c.getContext("2d").drawImage(img, (img.width - sw) / 2, (img.height - sh) / 2, sw, sh, 0, 0, w, h);
-      ok(c.toDataURL("image/jpeg", 0.82));
+      ok(c.toDataURL("image/jpeg", q));
     };
     img.src = URL.createObjectURL(file);
   });
@@ -674,14 +680,7 @@ function EditListModal({ cfg, title, rows, onSave, onClose, t, isKm }) {
 // អាកាសធាតុ: Open-Meteo (ឥតគិតថ្លៃ, គ្មាន API key) តាមទីតាំងគម្រោង
 const WX = (c) => (c === 0 ? "☀️" : c < 3 ? "⛅" : c < 50 ? "☁️" : c < 70 ? "🌧️" : c < 80 ? "🌦️" : "⛈️");
 function WeatherWidget({ t, isKm }) {
-  const [w, setW] = useState(null);
-  useEffect(() => {
-    const url = `https://api.open-meteo.com/v1/forecast?latitude=${LOC.lat}&longitude=${LOC.lon}`
-      + "&current=temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code"
-      + "&hourly=temperature_2m,weather_code,relative_humidity_2m,wind_speed_10m"
-      + "&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=Asia%2FPhnom_Penh&forecast_days=6";
-    fetch(url).then((r) => r.json()).then(setW).catch(() => setW({ error: true }));
-  }, []);
+  const w = useWeather();
   const c = w && w.current;
   const h0 = c ? w.hourly.time.findIndex((x) => x.slice(0, 13) >= c.time.slice(0, 13)) : 0;
   return (
@@ -860,7 +859,7 @@ const Accent = ({ colors }) => <div className="absolute inset-x-0 top-0 h-[3px]"
 // - ដាក់ mouse / ប៉ះ: បន្ទាត់ណែនាំរត់តាម mouse បន្តបន្ទាប់ តាមបណ្តោយខ្សែ
 // - Tooltip គណនា % នៅចំណុចនោះពីខ្សែកោងពិតប្រាកដ (interpolation) ហើយ "ជាប់" ត្រង់ខែ ពេលជិតខែ
 // - Tooltip ជាកញ្ចក់ថ្លា មើលទិន្នន័យខាងក្រោយបាន
-function SCurveChart({ data }) {
+function SCurveChart({ data, width = 0, rotated = false }) {
   const [hp, setHp] = useState(null);          // ទីតាំង mouse ក្នុងឯកតា viewBox (បន្តបន្ទាប់)
   const lastPx = useRef(null);
   const wasVisible = useRef(false);
@@ -932,7 +931,7 @@ function SCurveChart({ data }) {
   const onMove = (e) => {
     if (n < 2) return;
     const r = e.currentTarget.getBoundingClientRect();
-    let px = ((e.clientX - r.left) / r.width) * W;
+    let px = rotated ? ((e.clientY - r.top) / r.height) * W : ((e.clientX - r.left) / r.width) * W;
     px = Math.max(x(0), Math.min(x(n - 1), px));
     for (let i = 0; i < n; i++) if (Math.abs(px - x(i)) < 6) { px = x(i); break; } // ជាប់ត្រង់ខែ
     lastPx.current = px;
@@ -956,8 +955,8 @@ function SCurveChart({ data }) {
   const follow = animate ? "transform .1s ease-out, opacity .15s" : "opacity .15s";
 
   return (
-    <div className="overflow-x-auto">
-      <div className="relative" style={{ minWidth: 520 }}>
+    <div className={width ? "" : "overflow-x-auto"} style={width ? { width } : undefined}>
+      <div className="relative" style={{ minWidth: width ? 0 : 520 }}>
         <svg viewBox={`0 0 ${W} ${H}`} className="w-full h-auto select-none block" style={{ touchAction: "pan-y" }}
           onPointerMove={onMove} onPointerDown={onMove} onPointerLeave={(e) => e.pointerType === "mouse" && setHp(null)}>
           <defs>
@@ -1069,7 +1068,7 @@ const msDays = (a, b) => Math.round((b - a) / MS_DAY);
 const msFmt = (s) => (s ? s.split("-").reverse().join("/") : "");
 const MS_MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 const msId = () => "r" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
-const msRow = (level, name, unit = "", qtyPlan = "", qtyActual = "", start = "", finish = "") => ({ id: msId(), level, name, unit, qtyPlan, qtyActual, start, finish });
+const msRow = (level, name, unit = "", qtyPlan = "", qtyActual = "", start = "", finish = "", boq = "") => ({ id: msId(), level, name, boq, unit, qtyPlan, qtyActual, start, finish });
 
 // ទិន្នន័យគំរូ (អ្នកអាចកែ/លុបទាំងអស់ដោយចុច Edit)
 const DEFAULT_MASTER = [
@@ -1089,6 +1088,7 @@ const DEFAULT_MASTER = [
   msRow(1, "Deck Slab", "m3", 900, 0, "2026-11-15", "2026-12-15"),
   msRow(1, "Finishing & Road Works", "LS", 1, 0, "2026-12-01", "2026-12-31"),
 ];
+["A1", "A1.1", "A1.2", "A1.3", "B2", "B2.1", "B2.2", "B2.2.1", "B2.2.2", "B2.2.3", "C3", "C3.1", "C3.2", "C3.3", "C3.4"].forEach((c, i) => { DEFAULT_MASTER[i].boq = c; });  // លេខ BOQ គំរូ
 
 // គណនាលេខរៀង, Start/Finish, Duration, % សម្រេច និង % ដែលគួរសម្រេចបាន ត្រឹមថ្ងៃនេះ
 function msCompute(items, today) {
@@ -1120,8 +1120,10 @@ function msCompute(items, today) {
 const msEnd = (arr, i) => { let j = i + 1; while (j < arr.length && arr[j].level > arr[i].level) j++; return j; };
 const r1 = (v) => Math.round(v * 10) / 10;
 
-function MasterSchedule({ items, onSave, canEdit, isKm }) {
-  const [mode, setMode] = useState("month");      // "month" | "year"
+function MasterSchedule({ items, onSave, canEdit, isKm, t, preparedBy, printMode = false, forceMode = null, printWidth = 0 }) {
+  const [modeState, setMode] = useState("month");      // "month" | "year"
+  const mode = forceMode || modeState;
+  const [printing, setPrinting] = useState(false);
   const [draft, setDraft] = useState(null);        // មិនទទេ = កំពុងកែ
   const editing = draft !== null;
   const today = new Date(); today.setHours(0, 0, 0, 0);
@@ -1162,6 +1164,7 @@ function MasterSchedule({ items, onSave, canEdit, isKm }) {
     ppd = mode === "month" ? 2.4 : 0.8;
     rs = mode === "month" ? new Date(mn.getFullYear(), mn.getMonth(), 1) : new Date(mn.getFullYear(), 0, 1);
     re = mode === "month" ? new Date(mx.getFullYear(), mx.getMonth() + 1, 1) : new Date(mx.getFullYear() + 1, 0, 1);
+    if (printMode && printWidth) ppd = Math.max(150, printWidth - 800) / Math.max(1, msDays(rs, re));   // Print: ក្រាបត្រូវទំហំទំព័រ
     total = msDays(rs, re) * ppd;
     const step = mode === "month" ? 1 : 3;
     for (let d = new Date(rs); d < re; d = new Date(d.getFullYear(), d.getMonth() + step, 1)) {
@@ -1185,6 +1188,7 @@ function MasterSchedule({ items, onSave, canEdit, isKm }) {
   return (
     <div className="space-y-4">
       {/* ក្បាល + ប៊ូតុង */}
+      {!printMode && (
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
         <div>
           <h3 className="text-base font-black uppercase">{L("Master Construction Schedule", "កាលវិភាគសាងសង់មេ (Master Construction Schedule)")}</h3>
@@ -1196,6 +1200,7 @@ function MasterSchedule({ items, onSave, canEdit, isKm }) {
               <button key={k} onClick={() => setMode(k)} className={`px-3 py-1 rounded-md ${mode === k ? "bg-white dark:bg-slate-600 shadow text-blue-600 dark:text-white" : "text-slate-500"}`}>{lb}</button>
             ))}
           </div>
+          {!editing && <button onClick={() => setPrinting(true)} className="px-3 py-1.5 rounded-md border border-inherit text-xs font-bold flex items-center gap-1.5"><Icon name="Printer" size={13} />{L("Print", "បោះពុម្ព")}</button>}
           {canEdit && !editing && <button onClick={() => setDraft(items.map((r) => ({ ...r })))} className="px-3 py-1.5 rounded-md bg-blue-600 text-white text-xs font-bold">✎ {L("Edit schedule", "កែកាលវិភាគ")}</button>}
           {editing && (<>
             <button onClick={addGroup} className="px-3 py-1.5 rounded-md border border-inherit text-xs font-bold text-blue-600">＋ {L("Add group", "បន្ថែម Group")}</button>
@@ -1205,9 +1210,11 @@ function MasterSchedule({ items, onSave, canEdit, isKm }) {
         </div>
       </div>
 
+      )}
+
       {/* សង្ខេបរួម + ពន្យល់ពណ៌ */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-        <div className="md:col-span-2 p-3 rounded-xl border border-slate-200/80 dark:border-[#222] bg-slate-50/60 dark:bg-slate-900/50 space-y-2">
+      <div className={`grid ${printMode ? "grid-cols-3" : "grid-cols-1 md:grid-cols-3"} gap-3`}>
+        <div className={`${printMode ? "col-span-2" : "md:col-span-2"} p-3 rounded-xl border border-slate-200/80 dark:border-[#222] bg-slate-50/60 dark:bg-slate-900/50 space-y-2`}>
           <div className="flex justify-between items-end text-xs">
             <span className="font-bold uppercase">{L("Overall progress (by quantity)", "វឌ្ឍនភាពរួម (តាមបរិមាណ)")}</span>
             <span className="font-black text-lg tabular-nums" style={{ color: ovSt.colors[0] }}>{r1(overall)}%</span>
@@ -1226,11 +1233,12 @@ function MasterSchedule({ items, onSave, canEdit, isKm }) {
       </div>
 
       {/* តារាង + Gantt */}
-      <div className="overflow-x-auto rounded-lg border border-slate-200 dark:border-[#222]">
-        <table className="border-collapse text-xs" style={{ minWidth: "100%" }}>
+      <div className={`${printMode ? "" : "overflow-x-auto"} rounded-lg border border-slate-200 dark:border-[#222]`}>
+        <table className={`border-collapse ${printMode ? "text-[10px]" : "text-xs"}`} style={{ minWidth: "100%" }}>
           <thead>
             <tr className="bg-slate-100 dark:bg-slate-900 border-b border-slate-200 dark:border-[#222] text-left">
-              <th className={`${head} sticky left-0 z-20 bg-slate-100 dark:bg-slate-900 min-w-[230px]`}>{L("No. / Description of work", "លេខ / ឈ្មោះការងារ")}</th>
+              <th className={`${head} ${printMode ? "" : "sticky left-0 z-20"} bg-slate-100 dark:bg-slate-900 min-w-[230px]`}>{L("No. / Description of work", "លេខ / ឈ្មោះការងារ")}</th>
+              <th className={head}>BOQ</th>
               <th className={head}>{L("Unit", "ឯកតា")}</th>
               <th className={`${head} text-right`}>{L("Qty planning", "បរិមាណផែនការ")}</th>
               <th className={`${head} text-right`}>{L("Qty actual", "បរិមាណជាក់ស្តែង")}</th>
@@ -1250,7 +1258,7 @@ function MasterSchedule({ items, onSave, canEdit, isKm }) {
             </tr>
           </thead>
           <tbody>
-            {rows.length === 0 && <tr><td colSpan={10} className="p-6 text-center text-slate-500">{L("No items yet. Click Edit schedule → Add group.", "មិនទាន់មានការងារ។ ចុច កែកាលវិភាគ → បន្ថែម Group។")}</td></tr>}
+            {rows.length === 0 && <tr><td colSpan={11} className="p-6 text-center text-slate-500">{L("No items yet. Click Edit schedule → Add group.", "មិនទាន់មានការងារ។ ចុច កែកាលវិភាគ → បន្ថែម Group។")}</td></tr>}
             {rows.map((r, i) => {
               const o = r.info, st = milestoneStatus({ planned: o.exp, actual: o.pct });
               const isG = r.level === 0;
@@ -1258,13 +1266,14 @@ function MasterSchedule({ items, onSave, canEdit, isKm }) {
               const bar = o.s && o.f ? { left: msDays(rs, o.s) * ppd, w: Math.max(4, o.dur * ppd) } : null;
               return (
                 <tr key={r.id} className={`border-b border-slate-100 dark:border-[#1d1d1d] ${rowBg} ${isG ? "font-bold" : ""}`}>
-                  <td className={`py-1.5 px-2 sticky left-0 z-10 ${rowBg} border-r border-slate-100 dark:border-[#1d1d1d]`} style={{ paddingLeft: 8 + r.level * 14 }}>
+                  <td className={`py-1.5 px-2 ${printMode ? "" : "sticky left-0 z-10"} ${rowBg} border-r border-slate-100 dark:border-[#1d1d1d]`} style={{ paddingLeft: 8 + r.level * 14 }}>
                     <div className="flex items-center gap-1.5">
                       <span className="font-mono text-[10px] text-slate-400 shrink-0 w-8">{r.no}</span>
                       {editing ? <input value={r.name} placeholder={isG ? "GROUP NAME" : L("Work item", "ឈ្មោះការងារ")} onChange={(e) => upd(i, "name", isG ? e.target.value.toUpperCase() : e.target.value)} className={`${cellIn} ${isG ? "font-bold" : ""}`} />
                         : <span className={isG ? "uppercase" : ""}>{r.name || "—"}</span>}
                     </div>
                   </td>
+                  <td className="py-1.5 px-2 whitespace-nowrap font-mono text-[11px] font-bold text-blue-700 dark:text-blue-300">{editing ? <input value={r.boq || ""} placeholder="A1.1" onChange={(e) => upd(i, "boq", e.target.value.toUpperCase())} className={`${cellIn} w-20 font-mono uppercase`} /> : (r.boq || "")}</td>
                   <td className="py-1.5 px-2 whitespace-nowrap">{r.summary ? "" : editing ? <input value={r.unit} onChange={(e) => upd(i, "unit", e.target.value)} className={`${cellIn} w-16`} /> : r.unit}</td>
                   <td className="py-1.5 px-2 text-right tabular-nums">{r.summary ? "" : editing ? <input type="number" value={r.qtyPlan} onChange={(e) => upd(i, "qtyPlan", e.target.value === "" ? "" : Number(e.target.value))} className={`${cellIn} w-24 text-right`} /> : (r.qtyPlan === "" ? "" : Number(r.qtyPlan).toLocaleString())}</td>
                   <td className="py-1.5 px-2 text-right tabular-nums">{r.summary ? "" : editing ? <input type="number" value={r.qtyActual} onChange={(e) => upd(i, "qtyActual", e.target.value === "" ? "" : Number(e.target.value))} className={`${cellIn} w-24 text-right`} /> : (r.qtyActual === "" ? "" : Number(r.qtyActual).toLocaleString())}</td>
@@ -1308,6 +1317,950 @@ function MasterSchedule({ items, onSave, canEdit, isKm }) {
         </table>
       </div>
       {editing && <p className="text-[11px] text-slate-500 dark:text-slate-400">{L("Tip: % = Qty actual ÷ Qty planning. Rows with sub-rows (groups) are calculated automatically. ▲▼ move, ⇤⇥ change level, ＋ add row, ↳ add sub-item.", "ណែនាំ: % = បរិមាណជាក់ស្តែង ÷ បរិមាណផែនការ។ ជួរដែលមានជួរតូចក្រោម (Group) គណនាស្វ័យប្រវត្តិ។ ▲▼ ផ្លាស់ទី, ⇤⇥ ប្តូរកម្រិត, ＋ បន្ថែមជួរ, ↳ បន្ថែមការងារតូច។")}</p>}
+      {printing && !printMode && (
+        <PrintModal title="MASTER CONSTRUCTION SCHEDULE" t={t} isKm={isKm} defaultOrientation="landscape" preparedBy={preparedBy} onClose={() => setPrinting(false)}
+          extra={<div className="inline-flex rounded-md bg-slate-100 p-0.5 font-bold">{[["month", L("Month", "ខែ")], ["year", L("Year", "ឆ្នាំ")]].map(([k, lb]) => <button key={k} onClick={() => setMode(k)} className={`px-2.5 py-1 rounded ${mode === k ? "bg-white shadow text-blue-600" : "text-slate-500"}`}>{lb}</button>)}</div>}>
+          {(ctx) => <MasterSchedule items={items} printMode forceMode={mode} printWidth={ctx.logical} isKm={isKm} canEdit={false} onSave={() => {}} />}
+        </PrintModal>
+      )}
+    </div>
+  );
+}
+
+const CUSTOM_SUB_BY_CAT = { catMaster: "Revision Tracking", catLeave: "Calendar & To-Do", catWarehouse: "Stock Management", catReq: "Request Tracking" };
+const CUSTOM_SUBS_LIST = Object.values(CUSTOM_SUB_BY_CAT);
+
+/* =====================================================================
+   ZOOM ពេញអេក្រង់ (ក្រាប S-Curve): ទូរស័ព្ទអាច "Rotate" ឲ្យពេញអេក្រង់ផ្ដេក
+   ===================================================================== */
+function ZoomModal({ title, onClose, isKm, right, children }) {
+  const [rot, setRot] = useState(false);
+  const [vp, setVp] = useState({ w: window.innerWidth, h: window.innerHeight });
+  useEffect(() => {
+    const f = () => setVp({ w: window.innerWidth, h: window.innerHeight });
+    const esc = (e) => { if (e.key === "Escape") onClose(); };
+    window.addEventListener("resize", f); window.addEventListener("orientationchange", f); window.addEventListener("keydown", esc);
+    return () => {
+      window.removeEventListener("resize", f); window.removeEventListener("orientationchange", f); window.removeEventListener("keydown", esc);
+      try { if (screen.orientation && screen.orientation.unlock) screen.orientation.unlock(); } catch (e) {}
+      try { if (document.fullscreenElement) document.exitFullscreen(); } catch (e) {}
+    };
+  }, []);
+  const portrait = vp.h > vp.w;
+  const rotated = rot && portrait;                       // បង្វិល 90° ដោយ CSS (ពេលទូរស័ព្ទមិនអាច lock orientation)
+  const W = rotated ? vp.h : vp.w, H = rotated ? vp.w : vp.h;
+  const chartW = Math.max(240, Math.min(W - 24, (H - 52 - 28) * 2));   // ក្រាបមានសមាមាត្រ 2:1
+  const toggle = async () => {
+    if (rot) { setRot(false); return; }
+    try { await document.documentElement.requestFullscreen(); await screen.orientation.lock("landscape"); }   // វិធីល្អបំផុត (Android Chrome)
+    catch (e) { try { if (document.fullscreenElement) await document.exitFullscreen(); } catch (e2) {} setRot(true); } // iPhone: បង្វិលដោយ CSS
+  };
+  const box = rotated
+    ? { position: "fixed", top: 0, left: 0, width: vp.h, height: vp.w, transformOrigin: "top left", transform: "rotate(90deg) translateY(-100%)" }
+    : { position: "fixed", inset: 0 };
+  return ReactDOM.createPortal(
+    <div className="z-[60] bg-white dark:bg-[#0F0F0F] text-slate-900 dark:text-slate-100 flex flex-col" style={box}>
+      <div className="flex items-center justify-between gap-2 px-3 shrink-0 border-b border-slate-200 dark:border-[#222]" style={{ height: 52 }}>
+        <div className="font-bold uppercase text-sm text-blue-600 truncate">{title}</div>
+        <div className="flex items-center gap-2">
+          {right}
+          {vp.w < 1024 && (
+            <button onClick={toggle} className="px-2.5 py-1.5 rounded-md border border-slate-300 dark:border-[#333] text-xs font-bold flex items-center gap-1.5">
+              <Icon name="RotateCw" size={14} />{rotated ? (isKm ? "ត្រឡប់" : "Back") : (isKm ? "បង្វិលពេញអេក្រង់" : "Rotate")}
+            </button>
+          )}
+          <button onClick={onClose} className="p-1.5 rounded-md border border-slate-300 dark:border-[#333]" title="Close"><Icon name="X" /></button>
+        </div>
+      </div>
+      <div className="flex-1 min-h-0 flex items-center justify-center p-3 overflow-auto">{children(chartW, rotated)}</div>
+    </div>, document.body);
+}
+
+/* =====================================================================
+   REAL SITE PHOTO & DRONE INSPECTION
+   - រូបភាពមាន Caption + Link Share (OneDrive / Telegram / Google Drive) មិនចាំបាច់ Upload រូបធំ
+   - រូប Preview (ស្រេចចិត្ត) ត្រូវបង្រួមតូចស្វ័យប្រវត្តិ; អតិបរមា 15
+   ===================================================================== */
+const MAX_PHOTOS = 15;
+const normLink = (s) => { s = (s || "").trim(); if (!s) return ""; return /^https?:\/\//i.test(s) ? s : "https://" + s; };
+const linkKind = (u) => (!u ? "" : /1drv\.ms|onedrive\.live\.com|sharepoint\.com/i.test(u) ? "OneDrive" : /t\.me|telegram\./i.test(u) ? "Telegram" : /drive\.google|docs\.google|photos\.app|photos\.google/i.test(u) ? "Google Drive" : "Link");
+const KIND_COLORS = { OneDrive: ["#0369A1", "#38BDF8"], Telegram: ["#1D8FD1", "#38B6F0"], "Google Drive": ["#15803D", "#FACC15"], Link: ["#475569", "#94A3B8"] };
+
+function LinkTile({ kind = "Link", small = false }) {
+  const c = KIND_COLORS[kind] || KIND_COLORS.Link;
+  return (
+    <div className="w-full h-full flex flex-col items-center justify-center gap-1 text-white" style={{ background: `linear-gradient(135deg, ${c[0]}, ${c[1]})` }}>
+      <Icon name="LinkIcon" size={small ? 16 : 34} />
+      <div className={`${small ? "text-[8px]" : "text-sm"} font-black tracking-wide`}>{kind}</div>
+    </div>
+  );
+}
+
+function DroneGallery({ images, title, canEdit, onChange, isKm }) {
+  const [index, setIndex] = useState(0);
+  const [playing, setPlaying] = useState(true);
+  const [manage, setManage] = useState(false);
+  useEffect(() => {
+    if (!playing || images.length < 2) return;
+    const timer = setInterval(() => setIndex((i) => (i + 1) % images.length), 4000);
+    return () => clearInterval(timer);
+  }, [playing, images.length]);
+  const idx = images.length ? index % images.length : 0;
+  const current = images[idx];
+  const kind = current ? linkKind(current.link) : "";
+  const btn = "p-1 rounded border border-inherit hover:bg-slate-200 dark:hover:bg-slate-800";
+  return (
+    <div>
+      <CardTitle icon="Image" right={
+        <div className="flex items-center gap-1">
+          {canEdit && <button onClick={() => setManage(true)} className="px-2 py-0.5 rounded bg-emerald-600 text-white text-[10px] font-bold">✎ {isKm ? "គ្រប់គ្រង" : "Manage"} {images.length}/{MAX_PHOTOS}</button>}
+          <button className={btn} onClick={() => setIndex((idx - 1 + images.length) % Math.max(1, images.length))}><Icon name="ChevronLeft" size={14} /></button>
+          <button className={btn} onClick={() => setIndex((idx + 1) % Math.max(1, images.length))}><Icon name="ChevronRight" size={14} /></button>
+          <button className={btn} onClick={() => setPlaying(!playing)}><Icon name={playing ? "Pause" : "Play"} size={14} /></button>
+        </div>
+      }>{title}</CardTitle>
+      {current ? (
+        <>
+          <div className="relative rounded-md overflow-hidden aspect-video border border-inherit">
+            {current.url ? <img src={current.url} alt={current.caption || "Site photo"} className="w-full h-full object-cover" /> : <LinkTile kind={kind || "Link"} />}
+            {current.link && (
+              <a href={current.link} target="_blank" rel="noopener noreferrer"
+                className="absolute top-2 right-2 px-2.5 py-1 rounded-full bg-black/60 hover:bg-black/80 text-white text-[10px] font-bold backdrop-blur flex items-center gap-1">
+                ↗ {isKm ? "បើករូបពេញ" : "Open"} · {kind}
+              </a>
+            )}
+            <div className="absolute bottom-0 inset-x-0 px-3 pt-10 pb-2.5 bg-gradient-to-t from-black/65 via-black/25 to-transparent text-white text-[12px] font-bold flex items-end justify-between gap-2 pointer-events-none">
+              <span className="truncate" style={{ textShadow: "0 1px 4px rgba(0,0,0,.85)" }}>{current.caption}</span>
+              <span className="shrink-0 font-mono text-[10px] px-2 py-0.5 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white">{idx + 1} / {images.length}</span>
+            </div>
+          </div>
+          <div className="flex flex-wrap justify-center gap-1 mt-2">
+            {images.map((_, i) => <button key={i} onClick={() => setIndex(i)} className={`h-1.5 rounded-full transition-all ${i === idx ? "w-5 bg-blue-600" : "w-1.5 bg-slate-300 dark:bg-slate-700"}`} />)}
+          </div>
+        </>
+      ) : <div className="text-xs text-slate-500 py-6 text-center">{isKm ? "មិនទាន់មានរូបថត។" : "No photos yet."}</div>}
+      {manage && <PhotoManager images={images} isKm={isKm} onClose={() => setManage(false)} onSave={(list) => { onChange(list); setIndex(0); setManage(false); }} />}
+    </div>
+  );
+}
+
+function PhotoManager({ images, onSave, onClose, isKm }) {
+  const L = (en, km) => (isKm ? km : en);
+  const [list, setList] = useState(images.map((p) => ({ ...p })));
+  const upd = (i, k, v) => setList(list.map((p, j) => (j === i ? { ...p, [k]: v } : p)));
+  const move = (i, d) => { const j = i + d; if (j < 0 || j >= list.length) return; const a = [...list]; [a[i], a[j]] = [a[j], a[i]]; setList(a); };
+  const pick = async (i, file) => { if (!file) return; upd(i, "url", await cropImage(file, 640, 360, 0.7)); };   // បង្រួម Preview ≈ 40KB
+  const save = () => onSave(list.map((p) => ({ ...p, link: normLink(p.link), caption: (p.caption || "").trim() })).filter((p) => p.url || p.link || p.caption));
+  return (
+    <Modal title={L("Real Site Photo & Drone Inspection", "រូបថតការដ្ឋាន និងដ្រូន")} onClose={onClose} width="max-w-3xl">
+      <div className="p-2.5 rounded-lg bg-sky-500/10 border border-sky-500/30 text-[11px] text-sky-800 dark:text-sky-200 leading-relaxed">
+        {L("Big photos / videos: upload to OneDrive or a Telegram group, then paste the share link here. A small preview photo is optional (auto-compressed).",
+           "រូបថត/វីដេអូធំ៖ Upload ទៅ OneDrive ឬ Group Telegram រួចបិទភ្ជាប់ Link Share នៅទីនេះ។ រូប Preview តូចគឺស្រេចចិត្ត (បង្រួមស្វ័យប្រវត្តិ)។")}
+      </div>
+      <div className="space-y-3">
+        {list.map((p, i) => {
+          const kind = linkKind(normLink(p.link));
+          return (
+            <div key={i} className="p-3 rounded-xl border border-slate-200 dark:border-[#222] bg-slate-50/70 dark:bg-slate-900/40 grid grid-cols-1 sm:grid-cols-[110px_1fr] gap-3">
+              <div className="aspect-video sm:aspect-[16/10] rounded-md overflow-hidden border border-inherit bg-slate-200 dark:bg-slate-800 relative">
+                {p.url ? <img src={p.url} alt="" className="w-full h-full object-cover" /> : <LinkTile kind={kind || "Link"} small />}
+              </div>
+              <div className="space-y-2 min-w-0">
+                <input value={p.caption || ""} placeholder={L("Caption (what is in this photo?)", "Caption (ពិពណ៌នារូបថត)")} className={INPUT} onChange={(e) => upd(i, "caption", e.target.value)} />
+                <input value={p.link || ""} placeholder={L("Share link: OneDrive / Telegram / Google Drive", "Link Share: OneDrive / Telegram / Google Drive")} className={`${INPUT} font-mono`} onChange={(e) => upd(i, "link", e.target.value)} />
+                <div className="flex flex-wrap items-center gap-2">
+                  <label className="px-2.5 py-1 rounded border border-inherit font-bold cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-800">
+                    📷 {p.url ? L("Change preview", "ប្តូររូប Preview") : L("Preview photo (optional)", "រូប Preview (ស្រេចចិត្ត)")}
+                    <input type="file" accept="image/*" hidden onChange={(e) => { pick(i, e.target.files[0]); e.target.value = ""; }} />
+                  </label>
+                  {p.url && <button type="button" onClick={() => upd(i, "url", "")} className="px-2 py-1 rounded border border-inherit text-slate-500">{L("Remove preview", "លុប Preview")}</button>}
+                  {kind && <span className="px-2 py-0.5 rounded-full text-white text-[10px] font-bold" style={{ background: KIND_COLORS[kind][0] }}>{kind}</span>}
+                  <span className="flex-1" />
+                  <button type="button" onClick={() => move(i, -1)} className="px-1.5 hover:text-blue-600">▲</button>
+                  <button type="button" onClick={() => move(i, 1)} className="px-1.5 hover:text-blue-600">▼</button>
+                  <button type="button" onClick={() => setList(list.filter((_, j) => j !== i))} className="px-1.5 text-rose-600"><Icon name="Trash2" size={14} /></button>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      <div className="flex items-center justify-between pt-3 border-t border-inherit gap-2 flex-wrap">
+        <button type="button" disabled={list.length >= MAX_PHOTOS} onClick={() => setList([...list, { url: "", caption: "", link: "" }])}
+          className="px-3 py-1.5 rounded border border-inherit font-bold text-blue-600 disabled:opacity-40">＋ {L("Add photo", "បន្ថែមរូប")} ({list.length}/{MAX_PHOTOS})</button>
+        <div className="flex gap-2">
+          <button type="button" onClick={onClose} className="px-3 py-1.5 rounded border border-inherit">{L("Cancel", "បោះបង់")}</button>
+          <button type="button" onClick={save} className="px-4 py-1.5 rounded bg-blue-600 text-white font-bold">{L("Save", "រក្សាទុក")}</button>
+        </div>
+      </div>
+    </Modal>
+  );
+}
+
+/* =====================================================================
+   PRINT / PDF: Daily Report និង Master Schedule (A4 / A3, បញ្ឈរ / ផ្ដេក)
+   - បើក Preview → ជ្រើសទំហំ → ចុច Print → ជ្រើស "Save as PDF" ដើម្បីបាន File PDF
+   ===================================================================== */
+function useWeather() {
+  const [w, setW] = useState(null);
+  useEffect(() => {
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${LOC.lat}&longitude=${LOC.lon}`
+      + "&current=temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code"
+      + "&hourly=temperature_2m,weather_code,relative_humidity_2m,wind_speed_10m"
+      + "&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=Asia%2FPhnom_Penh&forecast_days=6";
+    fetch(url).then((r) => r.json()).then(setW).catch(() => setW({ error: true }));
+  }, []);
+  return w;
+}
+
+const RPT_CSS = `
+@media print {
+  html, body { background:#fff !important; height:auto !important; overflow:visible !important; }
+  body.report-open #root { display:none !important; }
+  body.report-open #report-overlay { position:static !important; inset:auto !important; overflow:visible !important; background:#fff !important; }
+  .no-print { display:none !important; }
+  .report-fit { zoom:1 !important; margin:0 !important; }
+  .report-page { box-shadow:none !important; }
+}
+.report-page, .report-page * { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+.avoid-break { break-inside:avoid; page-break-inside:avoid; }
+`;
+
+function ReportHeader({ t, title, date, preparedBy }) {
+  const d = new Date(date + "T00:00:00");
+  const dateStr = isNaN(d) ? date : d.toLocaleDateString("en-GB", { weekday: "long", day: "2-digit", month: "long", year: "numeric" });
+  return (
+    <div className="avoid-break flex items-start justify-between gap-4 pb-3 mb-3 border-b-4" style={{ borderColor: "#3B5BDB" }}>
+      <div>
+        <div className="text-[22px] font-black tracking-wide" style={{ color: "#1B2A4E" }}>T.I.A CONSTRUCTION</div>
+        <div className="text-[12px] font-bold text-slate-700 mt-0.5">{t.projectName}</div>
+        <div className="text-[10px] text-slate-500">{PROJECT_ADDRESS}</div>
+      </div>
+      <div className="text-right shrink-0">
+        <div className="text-[16px] font-black uppercase" style={{ color: "#3B5BDB" }}>{title}</div>
+        <div className="text-[11px] font-bold text-slate-700 mt-1">Date: {dateStr}</div>
+        {preparedBy && <div className="text-[10px] text-slate-500">Prepared by: {preparedBy}</div>}
+      </div>
+    </div>
+  );
+}
+
+function PrintModal({ title, onClose, t, isKm, defaultOrientation = "portrait", preparedBy, extra, children }) {
+  const [size, setSize] = useState("A4");
+  const [orient, setOrient] = useState(defaultOrientation);
+  const [date, setDate] = useState(() => new Date().toISOString().slice(0, 10));
+  const [vw, setVw] = useState(window.innerWidth);
+  useEffect(() => {
+    const f = () => setVw(window.innerWidth);
+    window.addEventListener("resize", f);
+    const html = document.documentElement, wasDark = html.classList.contains("dark");
+    html.classList.remove("dark");                      // Report ត្រូវតែផ្ទៃសជានិច្ច (Night Mode មិនប៉ះពាល់)
+    document.body.classList.add("report-open");
+    return () => { window.removeEventListener("resize", f); document.body.classList.remove("report-open"); if (wasDark) html.classList.add("dark"); };
+  }, []);
+  const logical = orient === "portrait" ? 730 : 1058;   // ទទឹងមាតិកា (A4 ដកគែម 8mm); A3 = A4 ពង្រីក ×1.414
+  const zf = size === "A3" ? 1.4142 : 1;
+  const fit = Math.min(1, (vw - 16) / (logical * zf));  // បង្រួមតែលើអេក្រង់ (ពេល Print មិនប៉ះពាល់)
+  const seg = (cur, set, opts) => (
+    <div className="inline-flex rounded-md bg-slate-100 p-0.5 font-bold">
+      {opts.map(([k, lb]) => <button key={k} onClick={() => set(k)} className={`px-2.5 py-1 rounded ${cur === k ? "bg-white shadow text-blue-600" : "text-slate-500"}`}>{lb}</button>)}
+    </div>
+  );
+  return ReactDOM.createPortal(
+    <div id="report-overlay" className="fixed inset-0 z-[70] bg-slate-300 overflow-auto text-slate-900">
+      <style>{`@page { size: ${size} ${orient}; margin: 8mm; }${RPT_CSS}`}</style>
+      <div className="no-print sticky top-0 z-10 bg-white border-b border-slate-300 px-3 py-2 flex flex-wrap items-center gap-2 text-xs">
+        <div className="font-black uppercase text-blue-700 mr-1">{title}</div>
+        {seg(size, setSize, [["A4", "A4"], ["A3", "A3"]])}
+        {seg(orient, setOrient, [["portrait", isKm ? "បញ្ឈរ" : "Portrait"], ["landscape", isKm ? "ផ្ដេក" : "Landscape"]])}
+        <label className="flex items-center gap-1 font-bold text-slate-600">{isKm ? "ថ្ងៃ" : "Date"}
+          <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="border border-slate-300 rounded px-1.5 py-1 font-normal" />
+        </label>
+        {extra}
+        <span className="flex-1" />
+        <button onClick={() => window.print()} className="px-4 py-1.5 rounded-md bg-blue-600 text-white font-bold flex items-center gap-1.5"><Icon name="Printer" size={14} />{isKm ? "Print / រក្សាទុក PDF" : "Print / Save as PDF"}</button>
+        <button onClick={onClose} className="px-3 py-1.5 rounded-md border border-slate-300 font-bold">{isKm ? "បិទ" : "Close"}</button>
+        <div className="basis-full text-[10px] text-slate-500">{isKm ? "ក្នុងផ្ទាំង Print ជ្រើស Destination = \"Save as PDF\" ដើម្បីបាន File PDF។" : "In the print dialog choose Destination = \"Save as PDF\" to get a PDF file."}</div>
+      </div>
+      <div className="report-fit mx-auto my-3" style={{ zoom: fit, width: logical * zf }}>
+        <div className="report-page bg-white shadow-xl" style={{ width: logical, zoom: zf }}>
+          <ReportHeader t={t} title={title} date={date} preparedBy={preparedBy} />
+          {children({ logical, date, size, orient })}
+          <div className="mt-4 pt-2 border-t border-slate-300 text-[9px] text-slate-400 flex justify-between"><span>T.I.A Document Hub</span><span>{PROJECT_ADDRESS}</span></div>
+        </div>
+      </div>
+    </div>, document.body);
+}
+
+// ប្រអប់ផ្នែកក្នុង Report
+function RSec({ title, children, className = "" }) {
+  return (
+    <div className={`avoid-break rounded-lg border border-slate-300 p-3 ${className}`}>
+      <div className="text-[10px] font-black uppercase tracking-wide mb-2" style={{ color: "#1B2A4E" }}>{title}</div>
+      {children}
+    </div>
+  );
+}
+const RTable = ({ head, rows, align = [] }) => (
+  <table className="w-full text-[10px] border-collapse">
+    <thead><tr className="bg-slate-100 text-slate-600 uppercase text-[9px]">{head.map((h, i) => <th key={i} className={`py-1 px-1.5 border border-slate-200 ${align[i] === "r" ? "text-right" : "text-left"}`}>{h}</th>)}</tr></thead>
+    <tbody>{rows.map((r, i) => <tr key={i} className="avoid-break">{r.map((c, j) => <td key={j} className={`py-1 px-1.5 border border-slate-200 ${align[j] === "r" ? "text-right tabular-nums" : ""}`}>{c}</td>)}</tr>)}</tbody>
+  </table>
+);
+
+function DailyReport({ r, ctx }) {
+  const { t, isKm, completePct, completeMonth, daysElapsed, totalDays, remainingDays, dates, trackerCount, sCurve, data, photos } = r;
+  const weather = useWeather();
+  const cur = weather && weather.current;
+  const daily = weather && weather.daily;
+  const sum = (arr, k) => arr.reduce((a, x) => a + Number(x[k] || 0), 0);
+  const cols = ctx.orient === "portrait" ? 3 : 4;
+  const trackers = [["RFI", PALETTE.blue], ["RFA", PALETTE.emerald], ["SI", PALETTE.amber], ["NCR", PALETTE.rose]];
+  return (
+    <div className="space-y-3">
+      <div className="grid grid-cols-3 gap-3">
+        <RSec title={t.overallProject}>
+          <div className="flex items-center justify-between gap-2">
+            <div>
+              <div className="text-2xl font-black tabular-nums">{completePct}%</div>
+              {completeMonth && <div className="text-[9px] font-mono text-slate-500">as of {completeMonth}</div>}
+              <div className="text-[9px] mt-1 text-slate-600">{t.remaining}: {r1(100 - completePct)}%</div>
+            </div>
+            <RingProgress pct={completePct} />
+          </div>
+        </RSec>
+        <RSec title={t.dayElapsed}>
+          <div className="text-lg font-black tabular-nums">{daysElapsed} / {totalDays} <span className="text-[10px] font-normal text-slate-500">Days</span></div>
+          <div className="my-2"><GradientBar percent={(daysElapsed / totalDays) * 100} colors={PALETTE.amber} height="h-2.5" marker={completePct} /></div>
+          <div className="text-[9px] text-slate-600 flex justify-between"><span>{dates.startDate}</span><span>{t.remainingDays}: {remainingDays}</span><span>{dates.endDate}</span></div>
+        </RSec>
+        <RSec title={`${t.rfiRfaSiNcrSummary}`}>
+          <div className="grid grid-cols-4 gap-1.5 text-center">
+            {trackers.map(([k, pal]) => (
+              <div key={k} className="rounded border border-slate-200 py-1.5" style={{ background: `${pal[0]}14` }}>
+                <div className="text-[9px] font-black" style={{ color: pal[0] }}>{k}</div>
+                <div className="text-xl font-black tabular-nums" style={{ color: pal[0] }}>{trackerCount(k)}</div>
+              </div>
+            ))}
+          </div>
+        </RSec>
+      </div>
+
+      <RSec title={t.sCurveTitle}>
+        <SCurveChart data={sCurve} width={ctx.logical - 26} />
+        <div className="mt-2 overflow-hidden">
+          <RTable head={["", ...sCurve.map((d) => d.month)]} align={["l", ...sCurve.map(() => "r")]}
+            rows={[["Planned %", ...sCurve.map((d) => d.planned)], ["Actual %", ...sCurve.map((d) => (Number(d.actual) > 0 ? d.actual : "—"))],
+                   ["Gap %", ...sCurve.map((d) => (Number(d.actual) > 0 ? r1(Number(d.actual) - Number(d.planned)) : "—"))]]} />
+        </div>
+      </RSec>
+
+      <div className="grid grid-cols-2 gap-3">
+        {[["machinery", t.machineryTitle], ["manpower", t.manpowerTitle]].map(([k, ttl]) => (
+          <RSec key={k} title={ttl}>
+            <RTable head={["#", isKm ? "ឈ្មោះ" : "Name", "Qty"]} align={["l", "l", "r"]}
+              rows={[...data[k].map((x, i) => [i + 1, x.name, x.qty]), [<b key="t"></b>, <b key="tt">TOTAL</b>, <b key="tq">{sum(data[k], "qty")}</b>]]} />
+          </RSec>
+        ))}
+      </div>
+
+      <RSec title={t.weeklyPerformance}>
+        <RTable head={["Week", "Date range", "Workers (persons)", "Machinery (units)"]} align={["l", "l", "r", "r"]}
+          rows={data.weekly.map((w) => [w.week, w.dateRange, w.worker, w.machinery])} />
+      </RSec>
+
+      <RSec title={t.masterScheduleTitle}>
+        <RTable head={["#", "Description", "Start", "Finish", "Plan %", "Actual %", "Status"]} align={["l", "l", "l", "l", "r", "r", "l"]}
+          rows={data.milestones.map((m, i) => { const st = milestoneStatus(m); return [i + 1, m.title, m.startDate, m.endDate, m.planned, m.actual, <span key="s" style={{ color: st.colors[0], fontWeight: 700 }}>{st.label}</span>]; })} />
+      </RSec>
+
+      <RSec title={isKm ? "ទីតាំងគម្រោង និងអាកាសធាតុ" : "Project Location & Weather"}>
+        <div className="grid grid-cols-2 gap-3 text-[10px]">
+          <div>
+            <div className="font-bold text-[11px]">{PROJECT_ADDRESS}</div>
+            <div className="text-slate-600 mt-1">GPS: {LOC.lat}, {LOC.lon}</div>
+            <div className="text-slate-500 break-all">https://maps.google.com/?q={LOC.lat},{LOC.lon}</div>
+          </div>
+          <div>
+            {cur ? (
+              <>
+                <div className="font-bold text-[11px]">{WX(cur.weather_code)} {Math.round(cur.temperature_2m)}°C · {isKm ? "សំណើម" : "Humidity"} {cur.relative_humidity_2m}% · {isKm ? "ខ្យល់" : "Wind"} {Math.round(cur.wind_speed_10m)} km/h</div>
+                {daily && <div className="flex gap-1.5 mt-1.5">{daily.time.slice(0, 5).map((d, i) => (
+                  <div key={d} className="flex-1 text-center rounded border border-slate-200 py-0.5">
+                    <div className="text-[8px] text-slate-500">{d.slice(5)}</div><div>{WX(daily.weather_code[i])}</div>
+                    <div className="text-[8px] font-bold">{Math.round(daily.temperature_2m_max[i])}°/{Math.round(daily.temperature_2m_min[i])}°</div>
+                  </div>))}</div>}
+              </>
+            ) : <div className="text-slate-500">{weather && weather.error ? (isKm ? "មិនអាចទាញអាកាសធាតុ" : "Weather unavailable") : "…"}</div>}
+          </div>
+        </div>
+      </RSec>
+
+      <RSec title={t.droneGalleryTitle}>
+        {photos.length === 0 ? <div className="text-[10px] text-slate-500">—</div> : (
+          <div className="grid gap-2" style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }}>
+            {photos.map((p, i) => {
+              const kind = linkKind(p.link);
+              return (
+                <div key={i} className="avoid-break">
+                  <div className="aspect-video rounded border border-slate-300 overflow-hidden bg-slate-100">{p.url ? <img src={p.url} alt="" className="w-full h-full object-cover" /> : <LinkTile kind={kind || "Link"} small />}</div>
+                  <div className="text-[9px] mt-0.5 leading-tight font-semibold">{i + 1}. {p.caption}</div>
+                  {p.link && <div className="text-[7.5px] text-slate-500 break-all leading-tight">{kind}: {p.link}</div>}
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </RSec>
+
+      <div className="avoid-break grid grid-cols-3 gap-6 pt-6 text-[10px] text-center text-slate-600">
+        {["Prepared by", "Checked by", "Approved by"].map((s) => <div key={s}><div className="border-t border-slate-500 pt-1 mt-8">{s}</div></div>)}
+      </div>
+    </div>
+  );
+}
+
+/* =====================================================================
+   LEAVE RECORD & TO-DO LIST: ប្រតិទិន (Calendar) តាមដានច្បាប់ឈប់សម្រាករបស់បុគ្គលិក, To-do និងកំណត់ចំណាំ
+   ===================================================================== */
+const isoOf = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+const todayISO = () => isoOf(new Date());
+const addDaysISO = (n) => { const d = new Date(); d.setDate(d.getDate() + n); return isoOf(d); };
+const dmy = (s) => (s ? s.split("-").reverse().join("/") : "");
+
+const CAL_TYPES = {
+  leave: { en: "Leave", km: "ច្បាប់ឈប់សម្រាក", dot: "#F59E0B", chip: "bg-amber-500/15 text-amber-800 dark:text-amber-200 border-amber-500/40" },
+  todo:  { en: "To-do", km: "ការងារត្រូវធ្វើ", dot: "#3B5BDB", chip: "bg-blue-500/15 text-blue-800 dark:text-blue-200 border-blue-500/40" },
+  note:  { en: "Note", km: "កំណត់ចំណាំ", dot: "#8B5CF6", chip: "bg-violet-500/15 text-violet-800 dark:text-violet-200 border-violet-500/40" },
+};
+const LEAVE_KINDS = ["Annual leave", "Sick leave", "Special leave", "Unpaid leave", "Mission / Off-site", "Other"];
+const DEFAULT_CAL = [
+  { id: "c1", type: "todo", title: "Submit weekly progress report", staff: "", leaveKind: "", start: addDaysISO(1), end: addDaysISO(1), priority: "High", done: false, note: "" },
+  { id: "c2", type: "leave", title: "", staff: "Eng. Sokha", leaveKind: "Annual leave", start: addDaysISO(3), end: addDaysISO(5), priority: "", done: false, note: "" },
+  { id: "c3", type: "note", title: "Concrete pour at Pier P2 — coordinate with batching plant", staff: "", leaveKind: "", start: addDaysISO(2), end: addDaysISO(2), priority: "", done: false, note: "" },
+];
+
+function LeaveCalendar({ events, onSave, canEdit, isKm, staffOptions }) {
+  const L = (en, km) => (isKm ? km : en);
+  const [cursor, setCursor] = useState(() => { const d = new Date(); return new Date(d.getFullYear(), d.getMonth(), 1); });
+  const [sel, setSel] = useState(todayISO());
+  const [filter, setFilter] = useState("all");
+  const [form, setForm] = useState(null);
+  const today = todayISO();
+  const y = cursor.getFullYear(), m = cursor.getMonth();
+  const offset = (new Date(y, m, 1).getDay() + 6) % 7;                       // ចាប់ផ្តើមថ្ងៃច័ន្ទ
+  const nDays = new Date(y, m + 1, 0).getDate();
+  const cells = Array.from({ length: Math.ceil((offset + nDays) / 7) * 7 }, (_, i) => new Date(y, m, 1 - offset + i));
+  const vis = events.filter((e) => filter === "all" || e.type === filter);
+  const onDay = (iso) => vis.filter((e) => e.start <= iso && (e.end || e.start) >= iso);
+  const label = (e) => (e.type === "leave" ? `${e.staff || "?"}` : e.title);
+  const monthStart = isoOf(new Date(y, m, 1)), monthEnd = isoOf(new Date(y, m + 1, 0));
+  const inMonth = (e) => e.start <= monthEnd && (e.end || e.start) >= monthStart;
+  const stats = {
+    leave: events.filter((e) => e.type === "leave" && inMonth(e)).length,
+    open: events.filter((e) => e.type === "todo" && !e.done).length,
+    overdue: events.filter((e) => e.type === "todo" && !e.done && (e.end || e.start) < today).length,
+    done: events.filter((e) => e.type === "todo" && e.done && inMonth(e)).length,
+  };
+  const upcoming = events.filter((e) => e.type === "todo" && !e.done).sort((a, b) => (a.end || a.start).localeCompare(b.end || b.start)).slice(0, 8);
+  const monthLabel = cursor.toLocaleDateString(isKm ? "km-KH" : "en-GB", { month: "long", year: "numeric" });
+  const save = (list) => onSave(list);
+  const toggleDone = (id) => save(events.map((e) => (e.id === id ? { ...e, done: !e.done } : e)));
+  const remove = (id) => { if (window.confirm(L("Delete this item?", "លុបធាតុនេះ?"))) save(events.filter((e) => e.id !== id)); };
+  const openNew = (type = "todo") => setForm({ id: "", type, title: "", staff: "", leaveKind: LEAVE_KINDS[0], start: sel, end: sel, priority: "Medium", done: false, note: "" });
+  const submit = (e) => {
+    e.preventDefault();
+    const f = { ...form, end: form.end && form.end >= form.start ? form.end : form.start };
+    if (f.type === "leave" ? !f.staff.trim() : !f.title.trim()) return alert(L("Please fill in the required field.", "សូមបំពេញព័ត៌មានចាំបាច់។"));
+    save(f.id ? events.map((x) => (x.id === f.id ? f : x)) : [...events, { ...f, id: msId() }]);
+    setSel(f.start); setForm(null);
+  };
+  const chipBtn = (k, lb) => <button key={k} onClick={() => setFilter(k)} className={`px-2.5 py-1 rounded-full text-[11px] font-bold border ${filter === k ? "bg-blue-600 text-white border-blue-600" : "border-slate-300 dark:border-[#333] text-slate-600 dark:text-slate-300"}`}>{lb}</button>;
+  const stat = (lb, v, c) => <div className="p-2.5 rounded-xl border border-slate-200 dark:border-[#222] bg-slate-50/60 dark:bg-slate-900/50"><div className="text-[10px] font-bold uppercase text-slate-500">{lb}</div><div className="text-2xl font-black tabular-nums" style={{ color: c }}>{v}</div></div>;
+
+  const EventRow = ({ e }) => {
+    const ty = CAL_TYPES[e.type];
+    const late = e.type === "todo" && !e.done && (e.end || e.start) < today;
+    return (
+      <div className="p-2.5 rounded-lg border border-slate-200 dark:border-[#222] bg-white dark:bg-[#121212] flex gap-2.5" style={{ borderLeft: `4px solid ${ty.dot}` }}>
+        {e.type === "todo" && <input type="checkbox" checked={!!e.done} disabled={!canEdit} onChange={() => toggleDone(e.id)} className="mt-1 w-4 h-4 shrink-0" />}
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-1.5">
+            <span className={`px-1.5 py-0.5 rounded-full text-[9px] font-bold border ${ty.chip}`}>{isKm ? ty.km : ty.en}</span>
+            {e.type === "leave" && <span className="text-[10px] font-bold text-amber-700 dark:text-amber-300">{e.leaveKind}</span>}
+            {e.type === "todo" && e.priority && <span className={`text-[9px] font-bold px-1.5 rounded-full ${e.priority === "High" ? "bg-rose-500/15 text-rose-600" : e.priority === "Low" ? "bg-slate-500/15 text-slate-500" : "bg-amber-500/15 text-amber-600"}`}>{e.priority}</span>}
+            {late && <span className="text-[9px] font-bold px-1.5 rounded-full bg-rose-600 text-white">{L("Overdue", "ហួសកំណត់")}</span>}
+          </div>
+          <div className={`text-xs font-bold mt-0.5 break-words ${e.done ? "line-through opacity-60" : ""}`}>{e.type === "leave" ? e.staff : e.title}</div>
+          <div className="text-[10px] font-mono text-slate-500 dark:text-slate-400">{dmy(e.start)}{e.end && e.end !== e.start ? ` → ${dmy(e.end)}` : ""}</div>
+          {e.note && <div className="text-[11px] text-slate-600 dark:text-slate-300 mt-0.5 break-words">{e.note}</div>}
+        </div>
+        {canEdit && <div className="flex flex-col gap-1 shrink-0">
+          <button onClick={() => setForm({ ...e })} className="p-1 text-slate-500 hover:text-blue-600"><Icon name="Pencil" size={13} /></button>
+          <button onClick={() => remove(e.id)} className="p-1 text-slate-500 hover:text-rose-600"><Icon name="Trash2" size={13} /></button>
+        </div>}
+      </div>
+    );
+  };
+
+  const dayEvents = onDay(sel);
+  const dayNames = isKm ? ["ច័ន្ទ", "អង្គារ", "ពុធ", "ព្រហ.", "សុក្រ", "សៅរ៍", "អាទិត្យ"] : ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+  return (
+    <div className="space-y-4">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+        <div>
+          <h3 className="text-base font-black uppercase">{L("Leave Record & To-Do List", "កំណត់ត្រាច្បាប់ និងបញ្ជីការងារ")}</h3>
+          <p className="text-[11px] text-slate-500 dark:text-slate-400">{L("Click a day to see or add leave, to-do items and notes.", "ចុចលើថ្ងៃណាមួយ ដើម្បីមើល ឬបន្ថែមច្បាប់ ការងារ និងកំណត់ចំណាំ។")}</p>
+        </div>
+        {canEdit && <div className="flex flex-wrap gap-2">
+          {["leave", "todo", "note"].map((k) => <button key={k} onClick={() => openNew(k)} className="px-3 py-1.5 rounded-md text-xs font-bold text-white" style={{ background: CAL_TYPES[k].dot }}>＋ {isKm ? CAL_TYPES[k].km : CAL_TYPES[k].en}</button>)}
+        </div>}
+      </div>
+
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        {stat(L("Leaves this month", "ច្បាប់ក្នុងខែនេះ"), stats.leave, "#F59E0B")}
+        {stat(L("Open to-dos", "ការងារមិនទាន់ចប់"), stats.open, "#3B5BDB")}
+        {stat(L("Overdue", "ហួសកំណត់"), stats.overdue, "#E11D48")}
+        {stat(L("Done this month", "បានសម្រេចខែនេះ"), stats.done, "#059669")}
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div className="lg:col-span-2 space-y-3">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div className="flex items-center gap-1.5">
+              <button onClick={() => setCursor(new Date(y, m - 1, 1))} className="p-1.5 rounded border border-inherit"><Icon name="ChevronLeft" size={14} /></button>
+              <div className="font-black text-sm w-40 text-center">{monthLabel}</div>
+              <button onClick={() => setCursor(new Date(y, m + 1, 1))} className="p-1.5 rounded border border-inherit"><Icon name="ChevronRight" size={14} /></button>
+              <button onClick={() => { const d = new Date(); setCursor(new Date(d.getFullYear(), d.getMonth(), 1)); setSel(todayISO()); }} className="px-2.5 py-1 rounded border border-inherit text-[11px] font-bold">{L("Today", "ថ្ងៃនេះ")}</button>
+            </div>
+            <div className="flex flex-wrap gap-1.5">{chipBtn("all", L("All", "ទាំងអស់"))}{["leave", "todo", "note"].map((k) => chipBtn(k, isKm ? CAL_TYPES[k].km : CAL_TYPES[k].en))}</div>
+          </div>
+          <div className="rounded-xl overflow-hidden border border-slate-200 dark:border-[#222]">
+            <div className="grid grid-cols-7 bg-slate-100 dark:bg-slate-900 text-[10px] font-bold uppercase text-slate-500 text-center">{dayNames.map((d) => <div key={d} className="py-1.5">{d}</div>)}</div>
+            <div className="grid grid-cols-7">
+              {cells.map((d) => {
+                const iso = isoOf(d), evs = onDay(iso), inM = d.getMonth() === m, isSel = iso === sel, isToday = iso === today;
+                return (
+                  <button key={iso} onClick={() => setSel(iso)} className={`min-h-[58px] sm:min-h-[92px] p-1 text-left border-t border-l border-slate-200 dark:border-[#222] align-top ${inM ? "" : "opacity-40"} ${d.getDay() === 0 || d.getDay() === 6 ? "bg-slate-50/70 dark:bg-slate-900/40" : ""} ${isSel ? "ring-2 ring-inset ring-blue-500 bg-blue-500/5" : "hover:bg-slate-100 dark:hover:bg-slate-900"}`}>
+                    <span className={`inline-flex w-6 h-6 items-center justify-center rounded-full text-[11px] font-bold ${isToday ? "bg-blue-600 text-white" : ""}`}>{d.getDate()}</span>
+                    <div className="hidden sm:block mt-0.5 space-y-0.5">
+                      {evs.slice(0, 3).map((e) => <div key={e.id} className={`truncate text-[10px] px-1 rounded border ${CAL_TYPES[e.type].chip} ${e.done ? "line-through opacity-60" : ""}`}>{label(e)}</div>)}
+                      {evs.length > 3 && <div className="text-[9px] text-slate-500 pl-1">+{evs.length - 3}</div>}
+                    </div>
+                    <div className="sm:hidden flex flex-wrap gap-0.5 mt-1">{evs.slice(0, 6).map((e) => <i key={e.id} className="w-1.5 h-1.5 rounded-full" style={{ background: CAL_TYPES[e.type].dot }} />)}</div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <div className="font-bold text-xs uppercase">{dmy(sel)}{sel === today ? ` · ${L("Today", "ថ្ងៃនេះ")}` : ""}</div>
+              {canEdit && <button onClick={() => openNew("todo")} className="text-[11px] font-bold text-blue-600">＋ {L("Add", "បន្ថែម")}</button>}
+            </div>
+            {dayEvents.length === 0 ? <div className="text-xs text-slate-500 py-4 text-center border border-dashed border-slate-300 dark:border-[#333] rounded-lg">{L("Nothing on this day.", "គ្មានអ្វីក្នុងថ្ងៃនេះ។")}</div> : dayEvents.map((e) => <EventRow key={e.id} e={e} />)}
+          </div>
+          <div className="space-y-2">
+            <div className="font-bold text-xs uppercase text-slate-500">{L("Open to-dos (by due date)", "ការងារមិនទាន់ចប់ (តាមថ្ងៃកំណត់)")}</div>
+            {upcoming.length === 0 ? <div className="text-xs text-slate-500">—</div> : upcoming.map((e) => <EventRow key={e.id} e={e} />)}
+          </div>
+        </div>
+      </div>
+
+      {form && (
+        <Modal title={form.id ? L("Edit item", "កែធាតុ") : L("Add item", "បន្ថែមធាតុ")} onClose={() => setForm(null)} width="max-w-lg">
+          <form onSubmit={submit} className="space-y-3">
+            <div className="flex gap-1.5">
+              {["leave", "todo", "note"].map((k) => <button type="button" key={k} onClick={() => setForm({ ...form, type: k })}
+                className={`flex-1 py-1.5 rounded-md text-xs font-bold border ${form.type === k ? "text-white border-transparent" : "border-slate-300 dark:border-[#333]"}`} style={form.type === k ? { background: CAL_TYPES[k].dot } : {}}>{isKm ? CAL_TYPES[k].km : CAL_TYPES[k].en}</button>)}
+            </div>
+            {form.type === "leave" ? (
+              <>
+                <Field label={L("Staff name *", "ឈ្មោះបុគ្គលិក *")}><input list="cal-staff" value={form.staff} className={INPUT} onChange={(e) => setForm({ ...form, staff: e.target.value })} /><datalist id="cal-staff">{staffOptions.map((s) => <option key={s} value={s} />)}</datalist></Field>
+                <Field label={L("Leave type", "ប្រភេទច្បាប់")}><select value={form.leaveKind} className={INPUT} onChange={(e) => setForm({ ...form, leaveKind: e.target.value })}>{LEAVE_KINDS.map((k) => <option key={k}>{k}</option>)}</select></Field>
+              </>
+            ) : (
+              <Field label={form.type === "todo" ? L("Task *", "ការងារ *") : L("Note *", "កំណត់ចំណាំ *")}><input value={form.title} className={INPUT} onChange={(e) => setForm({ ...form, title: e.target.value })} /></Field>
+            )}
+            <div className="grid grid-cols-2 gap-2">
+              <Field label={form.type === "leave" ? L("From", "ចាប់ពី") : L("Date / start", "ថ្ងៃ / ចាប់ផ្តើម")}><input type="date" required value={form.start} className={INPUT} onChange={(e) => setForm({ ...form, start: e.target.value, end: form.end < e.target.value ? e.target.value : form.end })} /></Field>
+              <Field label={form.type === "leave" ? L("To", "ដល់") : L("Due / end", "ថ្ងៃកំណត់ / បញ្ចប់")}><input type="date" value={form.end} min={form.start} className={INPUT} onChange={(e) => setForm({ ...form, end: e.target.value })} /></Field>
+            </div>
+            {form.type === "todo" && (
+              <div className="grid grid-cols-2 gap-2">
+                <Field label={L("Priority", "អាទិភាព")}><select value={form.priority} className={INPUT} onChange={(e) => setForm({ ...form, priority: e.target.value })}>{["Low", "Medium", "High"].map((p) => <option key={p}>{p}</option>)}</select></Field>
+                <Field label={L("Status", "ស្ថានភាព")}><select value={form.done ? "done" : "open"} className={INPUT} onChange={(e) => setForm({ ...form, done: e.target.value === "done" })}><option value="open">{L("Open", "មិនទាន់ចប់")}</option><option value="done">{L("Done", "ចប់")}</option></select></Field>
+              </div>
+            )}
+            <Field label={L("Remark", "កំណត់សម្គាល់")}><textarea value={form.note} rows={2} className={INPUT} onChange={(e) => setForm({ ...form, note: e.target.value })} /></Field>
+            <div className="flex justify-between pt-2 border-t border-inherit">
+              {form.id ? <button type="button" onClick={() => { remove(form.id); setForm(null); }} className="px-3 py-1.5 rounded border border-rose-400 text-rose-600 font-bold">{L("Delete", "លុប")}</button> : <span />}
+              <div className="flex gap-2"><button type="button" onClick={() => setForm(null)} className="px-3 py-1.5 rounded border border-inherit">{L("Cancel", "បោះបង់")}</button><button type="submit" className="px-4 py-1.5 rounded bg-blue-600 text-white font-bold">{L("Save", "រក្សាទុក")}</button></div>
+            </div>
+          </form>
+        </Modal>
+      )}
+    </div>
+  );
+}
+
+/* =====================================================================
+   WAREHOUSE: គ្រប់គ្រងស្តុក (Stock Balance) + កំណត់ត្រាចូល/ចេញ (Tracking Record)
+   Balance = Opening + IN − OUT ; ជូនដំណឹងពេលស្តុកទាបជាង Min
+   ===================================================================== */
+const DEFAULT_STOCK = {
+  items: [
+    { id: "s1", code: "MAT-001", name: "Cement (50 kg bag)", unit: "bag", category: "Material", opening: 500, min: 100, location: "Warehouse A" },
+    { id: "s2", code: "MAT-002", name: "Rebar D16", unit: "ton", category: "Material", opening: 12, min: 3, location: "Steel yard" },
+    { id: "s3", code: "MAT-003", name: "Rebar D12", unit: "ton", category: "Material", opening: 8, min: 2, location: "Steel yard" },
+    { id: "s4", code: "FUE-001", name: "Diesel", unit: "L", category: "Fuel", opening: 2000, min: 500, location: "Fuel tank" },
+    { id: "s5", code: "PPE-001", name: "Safety helmet", unit: "pcs", category: "PPE", opening: 60, min: 20, location: "Warehouse A" },
+  ],
+  tx: [
+    { id: "t1", date: addDaysISO(-6), itemId: "s1", type: "OUT", qty: 120, ref: "MR-001", party: "Pier P2 concrete", note: "", by: "" },
+    { id: "t2", date: addDaysISO(-4), itemId: "s4", type: "OUT", qty: 650, ref: "", party: "Excavators / generators", note: "Weekly fuel", by: "" },
+    { id: "t3", date: addDaysISO(-3), itemId: "s2", type: "IN", qty: 6, ref: "PO-014", party: "ABC Steel Co.", note: "", by: "" },
+    { id: "t4", date: addDaysISO(-1), itemId: "s5", type: "OUT", qty: 45, ref: "", party: "New workers", note: "", by: "" },
+  ],
+};
+
+function StockManager({ state, onSave, canEdit, isKm, userName }) {
+  const L = (en, km) => (isKm ? km : en);
+  const items = state.items || [], tx = state.tx || [];
+  const [tab, setTab] = useState("stock");
+  const [q, setQ] = useState("");
+  const [cat, setCat] = useState("ALL");
+  const [lowOnly, setLowOnly] = useState(false);
+  const [fType, setFType] = useState("ALL");
+  const [fItem, setFItem] = useState("ALL");
+  const [from, setFrom] = useState("");
+  const [to, setTo] = useState("");
+  const [itemForm, setItemForm] = useState(null);
+  const [txForm, setTxForm] = useState(null);
+
+  const calc = {};
+  items.forEach((i) => { calc[i.id] = { inn: 0, out: 0 }; });
+  tx.forEach((x) => { if (calc[x.itemId]) { if (x.type === "IN") calc[x.itemId].inn += Number(x.qty); else calc[x.itemId].out += Number(x.qty); } });
+  const bal = (i) => Number(i.opening || 0) + calc[i.id].inn - calc[i.id].out;
+  const status = (i) => { const b = bal(i); return b <= 0 ? ["Out of stock", "bg-rose-600 text-white"] : b <= Number(i.min || 0) ? ["Low", "bg-amber-500/20 text-amber-700 dark:text-amber-300"] : ["OK", "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300"]; };
+  const itemById = Object.fromEntries(items.map((i) => [i.id, i]));
+  const cats = [...new Set(items.map((i) => i.category).filter(Boolean))];
+  const lowCount = items.filter((i) => bal(i) <= Number(i.min || 0)).length;
+  const mStart = todayISO().slice(0, 8) + "01";
+  const monthIn = tx.filter((x) => x.type === "IN" && x.date >= mStart).length, monthOut = tx.filter((x) => x.type === "OUT" && x.date >= mStart).length;
+
+  // សមតុល្យបន្ទាប់ពីប្រតិបត្តិការនីមួយៗ (Running balance)
+  const after = {};
+  const run = Object.fromEntries(items.map((i) => [i.id, Number(i.opening || 0)]));
+  [...tx].sort((a, b) => a.date.localeCompare(b.date) || a.id.localeCompare(b.id)).forEach((x) => { run[x.itemId] = (run[x.itemId] || 0) + (x.type === "IN" ? 1 : -1) * Number(x.qty); after[x.id] = run[x.itemId]; });
+
+  const shownItems = items.filter((i) => (cat === "ALL" || i.category === cat) && (!lowOnly || bal(i) <= Number(i.min || 0)) && `${i.code} ${i.name} ${i.location}`.toLowerCase().includes(q.toLowerCase()));
+  const shownTx = tx.filter((x) => (fType === "ALL" || x.type === fType) && (fItem === "ALL" || x.itemId === fItem) && (!from || x.date >= from) && (!to || x.date <= to)
+    && `${(itemById[x.itemId] || {}).name} ${x.ref} ${x.party} ${x.note}`.toLowerCase().includes(q.toLowerCase())).sort((a, b) => b.date.localeCompare(a.date) || b.id.localeCompare(a.id));
+
+  const setState = (patch) => onSave({ items, tx, ...patch });
+  const saveItem = (e) => {
+    e.preventDefault();
+    const f = { ...itemForm, opening: Number(itemForm.opening) || 0, min: Number(itemForm.min) || 0 };
+    if (!f.name.trim()) return;
+    setState({ items: f.id ? items.map((i) => (i.id === f.id ? f : i)) : [...items, { ...f, id: msId() }] });
+    setItemForm(null);
+  };
+  const delItem = (i) => { if (window.confirm(L(`Delete "${i.name}" and all its records?`, `លុប "${i.name}" និងកំណត់ត្រាទាំងអស់?`))) setState({ items: items.filter((x) => x.id !== i.id), tx: tx.filter((x) => x.itemId !== i.id) }); };
+  const saveTx = (e) => {
+    e.preventDefault();
+    const f = { ...txForm, qty: Number(txForm.qty) };
+    const it = itemById[f.itemId];
+    if (!it || !(f.qty > 0)) return alert(L("Select an item and enter a quantity above 0.", "សូមជ្រើសសម្ភារ និងវាយបរិមាណលើសពី 0។"));
+    const available = bal(it) + (f.id ? ((tx.find((x) => x.id === f.id) || {}).type === "OUT" ? Number((tx.find((x) => x.id === f.id) || {}).qty) : 0) : 0);
+    if (f.type === "OUT" && f.qty > available) return alert(L(`Not enough stock. Available: ${available} ${it.unit}`, `ស្តុកមិនគ្រប់គ្រាន់។ មាន: ${available} ${it.unit}`));
+    setState({ tx: f.id ? tx.map((x) => (x.id === f.id ? f : x)) : [...tx, { ...f, id: msId() }] });
+    setTxForm(null);
+  };
+  const delTx = (id) => { if (window.confirm(L("Delete this record?", "លុបកំណត់ត្រានេះ?"))) setState({ tx: tx.filter((x) => x.id !== id) }); };
+  const newTx = (type, itemId = "") => setTxForm({ id: "", date: todayISO(), itemId: itemId || (items[0] ? items[0].id : ""), type, qty: "", ref: "", party: "", note: "", by: userName || "" });
+  const exportCsv = () => {
+    const esc = (v) => `"${String(v ?? "").replace(/"/g, '""')}"`;
+    const rows = [["Date", "Code", "Item", "Unit", "Type", "Qty", "Ref No.", "From/To/Used for", "Note", "By", "Balance after"]]
+      .concat(shownTx.map((x) => { const i = itemById[x.itemId] || {}; return [x.date, i.code, i.name, i.unit, x.type, x.qty, x.ref, x.party, x.note, x.by, after[x.id]]; }));
+    const blob = new Blob(["\ufeff" + rows.map((r) => r.map(esc).join(",")).join("\n")], { type: "text/csv;charset=utf-8" });
+    const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `stock-records-${todayISO()}.csv`; a.click();
+  };
+  const stat = (lb, v, c) => <div className="p-2.5 rounded-xl border border-slate-200 dark:border-[#222] bg-slate-50/60 dark:bg-slate-900/50"><div className="text-[10px] font-bold uppercase text-slate-500">{lb}</div><div className="text-2xl font-black tabular-nums" style={{ color: c }}>{v}</div></div>;
+  const th = "py-2 px-2 text-[10px] font-bold uppercase whitespace-nowrap text-slate-600 dark:text-slate-300 text-left";
+  const td = "py-1.5 px-2 whitespace-nowrap";
+  const tabBtn = (k, lb) => <button key={k} onClick={() => setTab(k)} className={`px-3 py-1.5 rounded-md text-xs font-bold ${tab === k ? "bg-white dark:bg-slate-600 shadow text-blue-600 dark:text-white" : "text-slate-500"}`}>{lb}</button>;
+
+  return (
+    <div className="space-y-4">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+        <div>
+          <h3 className="text-base font-black uppercase">{L("Warehouse — Stock Management & Tracking Record", "ឃ្លាំង — គ្រប់គ្រងស្តុក និងកំណត់ត្រាតាមដាន")}</h3>
+          <p className="text-[11px] text-slate-500 dark:text-slate-400">{L("Balance = Opening + IN − OUT. Record every stock in/out to keep a full tracking history.", "សមតុល្យ = ដើមគ្រា + ចូល − ចេញ។ កត់ត្រាគ្រប់ការចូល/ចេញ ដើម្បីមានប្រវត្តិតាមដានពេញលេញ។")}</p>
+        </div>
+        {canEdit && <div className="flex flex-wrap gap-2">
+          <button onClick={() => newTx("IN")} className="px-3 py-1.5 rounded-md text-xs font-bold bg-emerald-600 text-white">⬇ {L("Stock IN", "ទទួលចូល")}</button>
+          <button onClick={() => newTx("OUT")} className="px-3 py-1.5 rounded-md text-xs font-bold bg-rose-600 text-white">⬆ {L("Stock OUT", "ចេញប្រើ")}</button>
+          <button onClick={() => setItemForm({ id: "", code: "", name: "", unit: "", category: "", opening: 0, min: 0, location: "" })} className="px-3 py-1.5 rounded-md text-xs font-bold border border-inherit text-blue-600">＋ {L("New item", "សម្ភារថ្មី")}</button>
+        </div>}
+      </div>
+
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        {stat(L("Items", "ចំនួនសម្ភារ"), items.length, "#3B5BDB")}
+        {stat(L("Low / out of stock", "ស្តុកទាប / អស់"), lowCount, lowCount ? "#E11D48" : "#059669")}
+        {stat(L("IN records (month)", "ចូល (ខែនេះ)"), monthIn, "#059669")}
+        {stat(L("OUT records (month)", "ចេញ (ខែនេះ)"), monthOut, "#F59E0B")}
+      </div>
+
+      <div className="flex flex-wrap items-center gap-2">
+        <div className="inline-flex rounded-lg bg-slate-100 dark:bg-slate-800 p-0.5">{tabBtn("stock", L("Stock balance", "សមតុល្យស្តុក"))}{tabBtn("log", L("Tracking records", "កំណត់ត្រាតាមដាន"))}</div>
+        <input value={q} onChange={(e) => setQ(e.target.value)} placeholder={L("Search…", "ស្វែងរក…")} className={`${INPUT} !w-44`} />
+        {tab === "stock" ? (<>
+          <select value={cat} onChange={(e) => setCat(e.target.value)} className={`${INPUT} !w-36`}><option value="ALL">{L("All categories", "គ្រប់ប្រភេទ")}</option>{cats.map((c) => <option key={c}>{c}</option>)}</select>
+          <label className="flex items-center gap-1.5 text-xs font-bold"><input type="checkbox" checked={lowOnly} onChange={(e) => setLowOnly(e.target.checked)} />{L("Low stock only", "ស្តុកទាបតែប៉ុណ្ណោះ")}</label>
+        </>) : (<>
+          <select value={fType} onChange={(e) => setFType(e.target.value)} className={`${INPUT} !w-28`}><option value="ALL">IN + OUT</option><option value="IN">IN</option><option value="OUT">OUT</option></select>
+          <select value={fItem} onChange={(e) => setFItem(e.target.value)} className={`${INPUT} !w-44`}><option value="ALL">{L("All items", "គ្រប់សម្ភារ")}</option>{items.map((i) => <option key={i.id} value={i.id}>{i.name}</option>)}</select>
+          <input type="date" value={from} onChange={(e) => setFrom(e.target.value)} className={`${INPUT} !w-36`} /><span className="text-xs">→</span><input type="date" value={to} onChange={(e) => setTo(e.target.value)} className={`${INPUT} !w-36`} />
+          <button onClick={exportCsv} className="px-3 py-1.5 rounded-md text-xs font-bold border border-inherit">⭳ CSV</button>
+        </>)}
+      </div>
+
+      {tab === "stock" ? (
+        <div className="overflow-x-auto rounded-lg border border-slate-200 dark:border-[#222]">
+          <table className="w-full text-xs border-collapse">
+            <thead><tr className="bg-slate-100 dark:bg-slate-900"><th className={th}>Code</th><th className={th}>{L("Item", "សម្ភារ")}</th><th className={th}>{L("Category", "ប្រភេទ")}</th><th className={th}>{L("Unit", "ឯកតា")}</th>
+              <th className={`${th} text-right`}>{L("Opening", "ដើមគ្រា")}</th><th className={`${th} text-right`}>IN</th><th className={`${th} text-right`}>OUT</th><th className={`${th} text-right`}>{L("Balance", "សមតុល្យ")}</th><th className={`${th} text-right`}>Min</th><th className={th}>{L("Status", "ស្ថានភាព")}</th><th className={th}>{L("Location", "ទីតាំង")}</th>{canEdit && <th className={th}></th>}</tr></thead>
+            <tbody>
+              {shownItems.length === 0 && <tr><td colSpan={12} className="p-6 text-center text-slate-500">{L("No items.", "គ្មានសម្ភារ។")}</td></tr>}
+              {shownItems.map((i) => { const [sl, sc] = status(i); const c = calc[i.id]; return (
+                <tr key={i.id} className="border-t border-slate-100 dark:border-[#1d1d1d]">
+                  <td className={`${td} font-mono text-[11px]`}>{i.code}</td><td className={`${td} font-bold`}>{i.name}</td><td className={td}>{i.category}</td><td className={td}>{i.unit}</td>
+                  <td className={`${td} text-right tabular-nums`}>{i.opening}</td><td className={`${td} text-right tabular-nums text-emerald-600`}>{c.inn}</td><td className={`${td} text-right tabular-nums text-rose-600`}>{c.out}</td>
+                  <td className={`${td} text-right tabular-nums font-black`}>{bal(i)}</td><td className={`${td} text-right tabular-nums text-slate-500`}>{i.min}</td>
+                  <td className={td}><span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${sc}`}>{sl}</span></td><td className={td}>{i.location}</td>
+                  {canEdit && <td className={`${td} text-right`}>
+                    <button onClick={() => newTx("IN", i.id)} title="IN" className="px-1.5 text-emerald-600 font-bold">⬇</button>
+                    <button onClick={() => newTx("OUT", i.id)} title="OUT" className="px-1.5 text-rose-600 font-bold">⬆</button>
+                    <button onClick={() => setItemForm({ ...i })} className="px-1.5 text-slate-500 hover:text-blue-600"><Icon name="Pencil" size={13} /></button>
+                    <button onClick={() => delItem(i)} className="px-1.5 text-slate-500 hover:text-rose-600"><Icon name="Trash2" size={13} /></button>
+                  </td>}
+                </tr>); })}
+            </tbody>
+          </table>
+        </div>
+      ) : (
+        <div className="overflow-x-auto rounded-lg border border-slate-200 dark:border-[#222]">
+          <table className="w-full text-xs border-collapse">
+            <thead><tr className="bg-slate-100 dark:bg-slate-900"><th className={th}>{L("Date", "ថ្ងៃ")}</th><th className={th}>{L("Item", "សម្ភារ")}</th><th className={th}>{L("Type", "ប្រភេទ")}</th><th className={`${th} text-right`}>{L("Qty", "បរិមាណ")}</th><th className={th}>Ref No.</th>
+              <th className={th}>{L("From / To / Used for", "ពី / ទៅ / ប្រើសម្រាប់")}</th><th className={th}>{L("Note", "កំណត់សម្គាល់")}</th><th className={th}>{L("By", "ដោយ")}</th><th className={`${th} text-right`}>{L("Balance after", "សមតុល្យក្រោយ")}</th>{canEdit && <th className={th}></th>}</tr></thead>
+            <tbody>
+              {shownTx.length === 0 && <tr><td colSpan={10} className="p-6 text-center text-slate-500">{L("No records.", "គ្មានកំណត់ត្រា។")}</td></tr>}
+              {shownTx.map((x) => { const i = itemById[x.itemId] || { name: "(deleted)", unit: "" }; return (
+                <tr key={x.id} className="border-t border-slate-100 dark:border-[#1d1d1d]">
+                  <td className={`${td} font-mono`}>{dmy(x.date)}</td><td className={`${td} font-bold`}>{i.name}</td>
+                  <td className={td}><span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${x.type === "IN" ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300" : "bg-rose-500/15 text-rose-700 dark:text-rose-300"}`}>{x.type}</span></td>
+                  <td className={`${td} text-right tabular-nums font-bold`}>{x.type === "IN" ? "+" : "−"}{x.qty} {i.unit}</td><td className={`${td} font-mono`}>{x.ref}</td><td className={td}>{x.party}</td><td className={`${td} max-w-[200px] truncate`}>{x.note}</td><td className={td}>{x.by}</td>
+                  <td className={`${td} text-right tabular-nums`}>{after[x.id]}</td>
+                  {canEdit && <td className={`${td} text-right`}><button onClick={() => setTxForm({ ...x })} className="px-1.5 text-slate-500 hover:text-blue-600"><Icon name="Pencil" size={13} /></button><button onClick={() => delTx(x.id)} className="px-1.5 text-slate-500 hover:text-rose-600"><Icon name="Trash2" size={13} /></button></td>}
+                </tr>); })}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {itemForm && (
+        <Modal title={itemForm.id ? L("Edit item", "កែសម្ភារ") : L("New item", "សម្ភារថ្មី")} onClose={() => setItemForm(null)} width="max-w-lg">
+          <form onSubmit={saveItem} className="space-y-3">
+            <div className="grid grid-cols-2 gap-2">
+              <Field label="Code"><input value={itemForm.code} className={`${INPUT} font-mono uppercase`} placeholder="MAT-010" onChange={(e) => setItemForm({ ...itemForm, code: e.target.value.toUpperCase() })} /></Field>
+              <Field label={L("Category", "ប្រភេទ")}><input list="stk-cat" value={itemForm.category} className={INPUT} onChange={(e) => setItemForm({ ...itemForm, category: e.target.value })} /><datalist id="stk-cat">{cats.map((c) => <option key={c} value={c} />)}</datalist></Field>
+            </div>
+            <Field label={L("Item name *", "ឈ្មោះសម្ភារ *")}><input required value={itemForm.name} className={INPUT} onChange={(e) => setItemForm({ ...itemForm, name: e.target.value })} /></Field>
+            <div className="grid grid-cols-3 gap-2">
+              <Field label={L("Unit", "ឯកតា")}><input value={itemForm.unit} className={INPUT} placeholder="bag, m3, pcs" onChange={(e) => setItemForm({ ...itemForm, unit: e.target.value })} /></Field>
+              <Field label={L("Opening stock", "ស្តុកដើមគ្រា")}><input type="number" value={itemForm.opening} className={INPUT} onChange={(e) => setItemForm({ ...itemForm, opening: e.target.value })} /></Field>
+              <Field label={L("Min. level", "កម្រិតអប្បបរមា")}><input type="number" value={itemForm.min} className={INPUT} onChange={(e) => setItemForm({ ...itemForm, min: e.target.value })} /></Field>
+            </div>
+            <Field label={L("Location", "ទីតាំងរក្សាទុក")}><input value={itemForm.location} className={INPUT} onChange={(e) => setItemForm({ ...itemForm, location: e.target.value })} /></Field>
+            <div className="flex justify-end gap-2 pt-2 border-t border-inherit"><button type="button" onClick={() => setItemForm(null)} className="px-3 py-1.5 rounded border border-inherit">{L("Cancel", "បោះបង់")}</button><button type="submit" className="px-4 py-1.5 rounded bg-blue-600 text-white font-bold">{L("Save", "រក្សាទុក")}</button></div>
+          </form>
+        </Modal>
+      )}
+      {txForm && (
+        <Modal title={`${txForm.type === "IN" ? "⬇ " + L("Stock IN", "ទទួលចូល") : "⬆ " + L("Stock OUT", "ចេញប្រើ")}`} onClose={() => setTxForm(null)} width="max-w-lg">
+          <form onSubmit={saveTx} className="space-y-3">
+            <div className="flex gap-1.5">{["IN", "OUT"].map((k) => <button type="button" key={k} onClick={() => setTxForm({ ...txForm, type: k })} className={`flex-1 py-1.5 rounded-md text-xs font-bold border ${txForm.type === k ? (k === "IN" ? "bg-emerald-600 text-white border-emerald-600" : "bg-rose-600 text-white border-rose-600") : "border-slate-300 dark:border-[#333]"}`}>{k === "IN" ? L("IN (receive)", "ចូល (ទទួល)") : L("OUT (issue / use)", "ចេញ (ប្រើ)")}</button>)}</div>
+            <div className="grid grid-cols-2 gap-2">
+              <Field label={L("Date", "ថ្ងៃ")}><input type="date" required value={txForm.date} className={INPUT} onChange={(e) => setTxForm({ ...txForm, date: e.target.value })} /></Field>
+              <Field label="Ref No. (PO / DO / MR)"><input value={txForm.ref} className={`${INPUT} font-mono uppercase`} onChange={(e) => setTxForm({ ...txForm, ref: e.target.value.toUpperCase() })} /></Field>
+            </div>
+            <Field label={L("Item *", "សម្ភារ *")}>
+              <select required value={txForm.itemId} className={INPUT} onChange={(e) => setTxForm({ ...txForm, itemId: e.target.value })}>{items.map((i) => <option key={i.id} value={i.id}>{i.code} · {i.name} ({L("balance", "សមតុល្យ")} {bal(i)} {i.unit})</option>)}</select>
+            </Field>
+            <Field label={`${L("Quantity", "បរិមាណ")} *${itemById[txForm.itemId] ? " (" + itemById[txForm.itemId].unit + ")" : ""}`}><input type="number" min="0" step="any" required value={txForm.qty} className={INPUT} onChange={(e) => setTxForm({ ...txForm, qty: e.target.value })} /></Field>
+            <Field label={txForm.type === "IN" ? L("Supplier / received from", "អ្នកផ្គត់ផ្គង់ / ទទួលពី") : L("Issued to / used for", "ចេញទៅ / ប្រើសម្រាប់")}><input value={txForm.party} className={INPUT} onChange={(e) => setTxForm({ ...txForm, party: e.target.value })} /></Field>
+            <div className="grid grid-cols-2 gap-2">
+              <Field label={L("Note", "កំណត់សម្គាល់")}><input value={txForm.note} className={INPUT} onChange={(e) => setTxForm({ ...txForm, note: e.target.value })} /></Field>
+              <Field label={L("Recorded by", "កត់ត្រាដោយ")}><input value={txForm.by} className={INPUT} onChange={(e) => setTxForm({ ...txForm, by: e.target.value })} /></Field>
+            </div>
+            <div className="flex justify-end gap-2 pt-2 border-t border-inherit"><button type="button" onClick={() => setTxForm(null)} className="px-3 py-1.5 rounded border border-inherit">{L("Cancel", "បោះបង់")}</button><button type="submit" className="px-4 py-1.5 rounded bg-blue-600 text-white font-bold">{L("Save", "រក្សាទុក")}</button></div>
+          </form>
+        </Modal>
+      )}
+    </div>
+  );
+}
+
+/* =====================================================================
+   REQUISITION: តាមដានសំណើ (Purchase / Material / Sub-Con / Prepare / General Request)
+   - សំណើអ្វី, ថ្ងៃណា, ដល់អ្នកណា, ត្រូវការនៅថ្ងៃណា, ស្ថានភាព, ថ្ងៃ Close, ចំនួនថ្ងៃដែលបើក
+   ===================================================================== */
+const REQ_TYPES = [
+  { key: "Purchase Request", km: "ស្នើសុំទិញ", pre: "PR", color: "#3B5BDB" },
+  { key: "Material Request", km: "ស្នើសុំសម្ភារ", pre: "MR", color: "#059669" },
+  { key: "Sub-Con Request", km: "ស្នើសុំម៉ៅការបន្ត", pre: "SC", color: "#F59E0B" },
+  { key: "Prepare Request", km: "រៀបចំលិខិតស្នើសុំ", pre: "PP", color: "#8B5CF6" },
+  { key: "General Request", km: "លិខិតស្នើសុំទូទៅ", pre: "GR", color: "#64748B" },
+];
+const REQ_STATUS = {
+  "Open": { km: "បើក", cls: "bg-blue-500/15 text-blue-700 dark:text-blue-300" },
+  "Submitted": { km: "បានដាក់ស្នើ", cls: "bg-sky-500/15 text-sky-700 dark:text-sky-300" },
+  "Approved": { km: "បានអនុម័ត", cls: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300" },
+  "In Progress": { km: "កំពុងដំណើរការ", cls: "bg-amber-500/20 text-amber-700 dark:text-amber-300" },
+  "Closed": { km: "បិទរួច", cls: "bg-slate-500/20 text-slate-700 dark:text-slate-200" },
+  "Rejected": { km: "បដិសេធ", cls: "bg-rose-500/15 text-rose-700 dark:text-rose-300" },
+};
+const DEFAULT_REQ = [
+  { id: "q1", ref: "PR-001", type: "Purchase Request", title: "Rebar D16 — 10 ton for Pier P3", requestedBy: "Eng. Sokha", date: addDaysISO(-12), to: "Procurement Manager", needBy: addDaysISO(-2), status: "In Progress", closeDate: "", note: "Supplier quotation received" },
+  { id: "q2", ref: "MR-001", type: "Material Request", title: "Cement 200 bags", requestedBy: "Eng. Vanna", date: addDaysISO(-9), to: "Warehouse", needBy: addDaysISO(-6), status: "Closed", closeDate: addDaysISO(-6), note: "" },
+  { id: "q3", ref: "SC-001", type: "Sub-Con Request", title: "Precast girder installation crew", requestedBy: "Eng. Sokha", date: addDaysISO(-3), to: "Project Manager", needBy: addDaysISO(10), status: "Submitted", closeDate: "", note: "" },
+];
+const daysBetween = (a, b) => Math.round((new Date(b + "T00:00:00") - new Date(a + "T00:00:00")) / 86400000);
+
+function RequestTracker({ items, onSave, canEdit, isKm, userName }) {
+  const L = (en, km) => (isKm ? km : en);
+  const [fType, setFType] = useState("ALL");
+  const [fStatus, setFStatus] = useState("ALL");
+  const [q, setQ] = useState("");
+  const [form, setForm] = useState(null);
+  const today = todayISO();
+  const typeOf = (k) => REQ_TYPES.find((t) => t.key === k) || REQ_TYPES[4];
+  const isDone = (r) => r.status === "Closed" || r.status === "Rejected";
+  const overdueDays = (r) => (!isDone(r) && r.needBy && r.needBy < today ? daysBetween(r.needBy, today) : 0);
+  const openDays = (r) => daysBetween(r.date, isDone(r) && r.closeDate ? r.closeDate : today);
+  const nextRef = (type) => { const p = typeOf(type).pre; const n = items.filter((r) => r.ref.startsWith(p + "-")).map((r) => Number(r.ref.split("-")[1]) || 0); return `${p}-${String(Math.max(0, ...n) + 1).padStart(3, "0")}`; };
+  const shown = items.filter((r) => (fType === "ALL" || r.type === fType) && (fStatus === "ALL" || (fStatus === "ACTIVE" ? !isDone(r) : fStatus === "OVERDUE" ? overdueDays(r) > 0 : r.status === fStatus))
+    && `${r.ref} ${r.title} ${r.requestedBy} ${r.to} ${r.note}`.toLowerCase().includes(q.toLowerCase())).sort((a, b) => b.date.localeCompare(a.date) || b.ref.localeCompare(a.ref));
+  const total = items.length, active = items.filter((r) => !isDone(r)).length, overdue = items.filter((r) => overdueDays(r) > 0).length, closed = items.filter((r) => r.status === "Closed");
+  const avgClose = closed.length ? Math.round(closed.reduce((a, r) => a + openDays(r), 0) / closed.length) : 0;
+
+  const setStatus = (id, status) => onSave(items.map((r) => (r.id === id ? { ...r, status, closeDate: status === "Closed" || status === "Rejected" ? (r.closeDate || today) : "" } : r)));
+  const openNew = (type = "Purchase Request") => setForm({ id: "", ref: nextRef(type), type, title: "", requestedBy: userName || "", date: today, to: "", needBy: "", status: "Open", closeDate: "", note: "" });
+  const submit = (e) => {
+    e.preventDefault();
+    const f = { ...form, ref: form.ref.trim().toUpperCase() };
+    if (!f.title.trim() || !f.ref) return;
+    if (items.some((r) => r.id !== f.id && r.ref.toUpperCase() === f.ref)) return alert(L("This Ref No. already exists: ", "លេខ Ref នេះមានរួចហើយ៖ ") + f.ref);
+    if (isDone(f) && !f.closeDate) f.closeDate = today;
+    if (!isDone(f)) f.closeDate = "";
+    onSave(f.id ? items.map((r) => (r.id === f.id ? f : r)) : [{ ...f, id: msId() }, ...items]);
+    setForm(null);
+  };
+  const del = (r) => { if (window.confirm(L(`Delete ${r.ref}?`, `លុប ${r.ref}?`))) onSave(items.filter((x) => x.id !== r.id)); };
+  const th = "py-2 px-2 text-[10px] font-bold uppercase whitespace-nowrap text-slate-600 dark:text-slate-300 text-left";
+  const td = "py-1.5 px-2 align-top";
+  const stat = (lb, v, c, k) => <button onClick={() => setFStatus(k)} className={`text-left p-2.5 rounded-xl border bg-slate-50/60 dark:bg-slate-900/50 ${fStatus === k ? "border-blue-500" : "border-slate-200 dark:border-[#222]"}`}><div className="text-[10px] font-bold uppercase text-slate-500">{lb}</div><div className="text-2xl font-black tabular-nums" style={{ color: c }}>{v}</div></button>;
+
+  return (
+    <div className="space-y-4">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+        <div>
+          <h3 className="text-base font-black uppercase">{L("Requisition Tracking", "តាមដានលិខិតស្នើសុំ")}</h3>
+          <p className="text-[11px] text-slate-500 dark:text-slate-400">{L("What was requested, when, to whom, needed by when, and when it was closed.", "ស្នើសុំអ្វី ពេលណា ដល់អ្នកណា ត្រូវការនៅពេលណា និងបិទនៅថ្ងៃណា។")}</p>
+        </div>
+        {canEdit && <button onClick={() => openNew(fType !== "ALL" ? fType : "Purchase Request")} className="px-3 py-1.5 rounded-md text-xs font-bold bg-blue-600 text-white self-start">＋ {L("New request", "សំណើថ្មី")}</button>}
+      </div>
+
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        {stat(L("Total requests", "សំណើសរុប"), total, "#3B5BDB", "ALL")}
+        {stat(L("Open / active", "កំពុងបើក"), active, "#F59E0B", "ACTIVE")}
+        {stat(L("Overdue", "ហួសកំណត់"), overdue, overdue ? "#E11D48" : "#059669", "OVERDUE")}
+        {stat(L("Avg. days to close", "ថ្ងៃជាមធ្យមដើម្បីបិទ"), avgClose, "#059669", "Closed")}
+      </div>
+
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
+        {REQ_TYPES.map((t) => {
+          const list = items.filter((r) => r.type === t.key), op = list.filter((r) => !isDone(r)).length;
+          return (
+            <button key={t.key} onClick={() => setFType(fType === t.key ? "ALL" : t.key)} className={`text-left p-2.5 rounded-xl border relative overflow-hidden ${fType === t.key ? "border-blue-500 bg-blue-500/5" : "border-slate-200 dark:border-[#222]"}`}>
+              <div className="absolute inset-x-0 top-0 h-[3px]" style={{ background: t.color }} />
+              <div className="text-[10px] font-bold uppercase truncate" style={{ color: t.color }}>{isKm ? t.km : t.key}</div>
+              <div className="text-xs mt-1"><span className="text-xl font-black tabular-nums">{op}</span> <span className="text-slate-500">{L("open", "បើក")} / {list.length}</span></div>
+            </button>
+          );
+        })}
+      </div>
+
+      <div className="flex flex-wrap items-center gap-2">
+        <input value={q} onChange={(e) => setQ(e.target.value)} placeholder={L("Search ref, request, name…", "ស្វែងរក Ref, សំណើ, ឈ្មោះ…")} className={`${INPUT} !w-56`} />
+        <select value={fStatus} onChange={(e) => setFStatus(e.target.value)} className={`${INPUT} !w-40`}>
+          <option value="ALL">{L("All status", "គ្រប់ស្ថានភាព")}</option><option value="ACTIVE">{L("Active only", "កំពុងបើក")}</option><option value="OVERDUE">{L("Overdue", "ហួសកំណត់")}</option>
+          {Object.keys(REQ_STATUS).map((s) => <option key={s} value={s}>{isKm ? REQ_STATUS[s].km : s}</option>)}
+        </select>
+        {(fType !== "ALL" || fStatus !== "ALL" || q) && <button onClick={() => { setFType("ALL"); setFStatus("ALL"); setQ(""); }} className="text-xs font-bold text-blue-600">{L("Clear filters", "សម្អាតតម្រង")}</button>}
+      </div>
+
+      <div className="overflow-x-auto rounded-lg border border-slate-200 dark:border-[#222]">
+        <table className="w-full text-xs border-collapse">
+          <thead><tr className="bg-slate-100 dark:bg-slate-900">
+            <th className={th}>Ref No.</th><th className={th}>{L("Type", "ប្រភេទ")}</th><th className={`${th} min-w-[200px]`}>{L("Request (what)", "សំណើអ្វី")}</th><th className={th}>{L("Requested by", "ស្នើដោយ")}</th><th className={th}>{L("Date", "ថ្ងៃស្នើ")}</th>
+            <th className={th}>{L("To (whom)", "ដល់អ្នកណា")}</th><th className={th}>{L("Needed by", "ត្រូវការនៅ")}</th><th className={th}>{L("Status", "ស្ថានភាព")}</th><th className={th}>{L("Closed on", "បិទនៅ")}</th><th className={`${th} text-right`}>{L("Days", "ថ្ងៃ")}</th>{canEdit && <th className={th}></th>}</tr></thead>
+          <tbody>
+            {shown.length === 0 && <tr><td colSpan={11} className="p-6 text-center text-slate-500">{L("No requests.", "គ្មានសំណើ។")}</td></tr>}
+            {shown.map((r) => { const ty = typeOf(r.type), od = overdueDays(r); return (
+              <tr key={r.id} className="border-t border-slate-100 dark:border-[#1d1d1d]">
+                <td className={`${td} font-mono font-bold whitespace-nowrap`} style={{ color: ty.color }}>{r.ref}</td>
+                <td className={`${td} whitespace-nowrap`}><span className="inline-block w-2 h-2 rounded-full mr-1.5" style={{ background: ty.color }} />{isKm ? ty.km : r.type}</td>
+                <td className={td}><div className="font-bold">{r.title}</div>{r.note && <div className="text-[10px] text-slate-500 dark:text-slate-400">{r.note}</div>}</td>
+                <td className={`${td} whitespace-nowrap`}>{r.requestedBy}</td><td className={`${td} font-mono whitespace-nowrap`}>{dmy(r.date)}</td><td className={`${td} whitespace-nowrap`}>{r.to}</td>
+                <td className={`${td} font-mono whitespace-nowrap`}>{dmy(r.needBy)}{od > 0 && <span className="ml-1 px-1.5 py-0.5 rounded-full bg-rose-600 text-white text-[9px] font-bold">+{od}d</span>}</td>
+                <td className={`${td} whitespace-nowrap`}>
+                  {canEdit ? <select value={r.status} onChange={(e) => setStatus(r.id, e.target.value)} className={`px-2 py-1 rounded-full text-[10px] font-bold border-0 ${REQ_STATUS[r.status].cls}`}>{Object.keys(REQ_STATUS).map((s) => <option key={s} value={s}>{isKm ? REQ_STATUS[s].km : s}</option>)}</select>
+                    : <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${REQ_STATUS[r.status].cls}`}>{isKm ? REQ_STATUS[r.status].km : r.status}</span>}
+                </td>
+                <td className={`${td} font-mono whitespace-nowrap`}>{dmy(r.closeDate)}</td>
+                <td className={`${td} text-right tabular-nums font-bold`}>{openDays(r)}</td>
+                {canEdit && <td className={`${td} whitespace-nowrap`}><button onClick={() => setForm({ ...r })} className="px-1.5 text-slate-500 hover:text-blue-600"><Icon name="Pencil" size={13} /></button><button onClick={() => del(r)} className="px-1.5 text-slate-500 hover:text-rose-600"><Icon name="Trash2" size={13} /></button></td>}
+              </tr>); })}
+          </tbody>
+        </table>
+      </div>
+
+      {form && (
+        <Modal title={form.id ? L("Edit request", "កែសំណើ") : L("New request", "សំណើថ្មី")} onClose={() => setForm(null)} width="max-w-xl">
+          <form onSubmit={submit} className="space-y-3">
+            <div className="grid grid-cols-2 gap-2">
+              <Field label={L("Request type", "ប្រភេទសំណើ")}><select value={form.type} className={INPUT} onChange={(e) => setForm({ ...form, type: e.target.value, ref: form.id ? form.ref : nextRef(e.target.value) })}>{REQ_TYPES.map((t) => <option key={t.key} value={t.key}>{isKm ? t.km : t.key}</option>)}</select></Field>
+              <Field label="Ref No."><input required value={form.ref} className={`${INPUT} font-mono uppercase`} onChange={(e) => setForm({ ...form, ref: e.target.value.toUpperCase() })} /></Field>
+            </div>
+            <Field label={L("Request (what) *", "សំណើអ្វី *")}><input required value={form.title} className={INPUT} placeholder={L("e.g. Rebar D16 — 10 ton", "ឧ. ដែក D16 — 10 តោន")} onChange={(e) => setForm({ ...form, title: e.target.value })} /></Field>
+            <div className="grid grid-cols-2 gap-2">
+              <Field label={L("Requested by", "ស្នើដោយ")}><input value={form.requestedBy} className={INPUT} onChange={(e) => setForm({ ...form, requestedBy: e.target.value })} /></Field>
+              <Field label={L("To (whom)", "ដល់អ្នកណា")}><input value={form.to} className={INPUT} placeholder="Procurement / PM / Warehouse" onChange={(e) => setForm({ ...form, to: e.target.value })} /></Field>
+              <Field label={L("Request date", "ថ្ងៃស្នើ")}><input type="date" required value={form.date} className={INPUT} onChange={(e) => setForm({ ...form, date: e.target.value })} /></Field>
+              <Field label={L("Needed by", "ត្រូវការនៅថ្ងៃ")}><input type="date" value={form.needBy} className={INPUT} onChange={(e) => setForm({ ...form, needBy: e.target.value })} /></Field>
+              <Field label={L("Status", "ស្ថានភាព")}><select value={form.status} className={INPUT} onChange={(e) => setForm({ ...form, status: e.target.value, closeDate: e.target.value === "Closed" || e.target.value === "Rejected" ? (form.closeDate || today) : "" })}>{Object.keys(REQ_STATUS).map((s) => <option key={s} value={s}>{isKm ? REQ_STATUS[s].km : s}</option>)}</select></Field>
+              <Field label={L("Closed on", "ថ្ងៃបិទ")}><input type="date" value={form.closeDate} disabled={!(form.status === "Closed" || form.status === "Rejected")} className={INPUT} onChange={(e) => setForm({ ...form, closeDate: e.target.value })} /></Field>
+            </div>
+            <Field label={L("Remark", "កំណត់សម្គាល់")}><textarea rows={2} value={form.note} className={INPUT} onChange={(e) => setForm({ ...form, note: e.target.value })} /></Field>
+            <div className="flex justify-end gap-2 pt-2 border-t border-inherit"><button type="button" onClick={() => setForm(null)} className="px-3 py-1.5 rounded border border-inherit">{L("Cancel", "បោះបង់")}</button><button type="submit" className="px-4 py-1.5 rounded bg-blue-600 text-white font-bold">{L("Save", "រក្សាទុក")}</button></div>
+          </form>
+        </Modal>
+      )}
     </div>
   );
 }
@@ -1343,6 +2296,11 @@ function App() {
   const completePct = lastActual ? Math.round(Number(lastActual.actual) * 10) / 10 : 0;
   const completeMonth = lastActual ? lastActual.month : "";
   const [dates, setDates] = usePersist("tia-dates", { startDate: "2026-05-01", endDate: "2026-12-31" });
+  const [calEvents, setCalEvents] = usePersist("tia-calendar", DEFAULT_CAL);   // Leave & To-Do Calendar
+  const [stock, setStock] = usePersist("tia-stock", DEFAULT_STOCK);              // Warehouse: items + transactions
+  const [requests, setRequests] = usePersist("tia-requests", DEFAULT_REQ);        // Requisition tracking
+  const [zoomChart, setZoomChart] = useState(false);                              // Zoom S-Curve
+  const [report, setReport] = useState(false);                                    // Daily Report (Print/PDF)
   const [master, setMaster] = usePersist("tia-master", DEFAULT_MASTER);   // Master Construction Schedule (វាយដោយដៃ)
   const [trackerManual, setTrackerManual] = usePersist("tia-trackers", { RFI: "", RFA: "", SI: "", NCR: "" }); // លេខ RFI/RFA/SI/NCR បញ្ចូលដោយដៃ ("" = រាប់ស្វ័យប្រវត្តិ)
 
@@ -1709,6 +2667,16 @@ function App() {
   // ===== ទំព័រ Dashboard =====
   const dashboard = (
     <>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h2 className="text-lg font-black uppercase">{t.dashboard}</h2>
+          <p className="text-[11px] text-slate-500 dark:text-slate-400">{t.projectName}</p>
+        </div>
+        <button onClick={() => setReport(true)} className="px-3.5 py-2 rounded-md text-xs font-bold bg-blue-600 text-white hover:bg-blue-700 flex items-center gap-2">
+          <Icon name="Printer" size={14} />{isKm ? "របាយការណ៍ប្រចាំថ្ងៃ (Print / PDF)" : "Daily Report (Print / PDF)"}
+        </button>
+      </div>
+
       {/* ជួរទី ១: វឌ្ឍនភាពសរុប | ចំនួនថ្ងៃ | RFI/RFA/SI/NCR */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
         <Card className="relative overflow-hidden flex items-center justify-between gap-3">
@@ -1775,7 +2743,8 @@ function App() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         <Card className="lg:col-span-6">
           <CardTitle icon="ChartColumn" right={
-            <div className="flex gap-2 text-[11px] font-bold">
+            <div className="flex flex-wrap justify-end gap-2 text-[11px] font-bold">
+              <button onClick={() => setZoomChart(true)} title={isKm ? "ពង្រីកក្រាបពេញអេក្រង់" : "Zoom chart full screen"} className="px-2 py-0.5 rounded-full border border-inherit hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center gap-1"><Icon name="Maximize" size={12} />{isKm ? "ពង្រីក" : "Zoom"}</button>
               <span className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-700 dark:text-blue-300"><i className="w-2 h-2 rounded-full bg-[#3B5BDB]" />Planned</span>
               <span className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-rose-500/10 text-rose-700 dark:text-rose-300"><i className="w-2 h-2 rounded-full bg-[#E11D48]" />Actual</span>
             </div>
@@ -1849,14 +2818,7 @@ function App() {
         </Card>
 
         <Card className="lg:col-span-4 space-y-4">
-          <DroneGallery images={photos} title={t.droneGalleryTitle} uploadLabel={t.photoBtn}
-            onUpload={canEditData ? async (e) => {
-              const files = [...e.target.files].slice(0, 10);            // យកអតិបរមា 10 រូប
-              if (!files.length) return;
-              const cropped = await Promise.all(files.map(async (f) => ({ url: await cropImage(f), caption: f.name.replace(/\.[^.]+$/, "") })));
-              setPhotos(cropped);                                        // ជំនួសរូបចាស់ទាំងអស់
-              e.target.value = "";
-            } : null} />
+          <DroneGallery images={photos} title={t.droneGalleryTitle} canEdit={canEditData} onChange={setPhotos} isKm={isKm} />
           {/* អាកាសធាតុពិត: ថ្ងៃនេះ + ម៉ោងបន្ទាប់ + ៥ ថ្ងៃខាងមុខ */}
           <WeatherWidget t={t} isKm={isKm} />
           {/* ផែនទី Google Maps ពីអាសយដ្ឋានគម្រោង */}
@@ -1902,12 +2864,14 @@ function App() {
   );
 
   // ===== ទំព័រប្រភេទឯកសារ (Drawing, Method Statement, ...) =====
-  const isRevision = currentCategory && currentCategory.key === "catMaster" && activeSub === "Revision Tracking";
+  const customPanel = currentCategory && CUSTOM_SUB_BY_CAT[currentCategory.key] === activeSub ? currentCategory.key : null;
+  const isRevision = !!customPanel;
+  const staffOptions = [...new Set([currentUser.name, ...users.map((u) => u.name)].filter(Boolean))];
   const categoryView = currentCategory && (
     <div className="space-y-6">
       <Card className="space-y-4">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <h2 className="text-lg font-bold uppercase">{isKm ? currentCategory.labelKm : currentCategory.label} <span className="ml-2 normal-case px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400 text-xs font-mono">{!isRevision && <>{filteredDocs.length} {t.filesUnit}</>}{isRevision && "Revision Tracking"}</span></h2>
+          <h2 className="text-lg font-bold uppercase">{isKm ? currentCategory.labelKm : currentCategory.label} <span className="ml-2 normal-case px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400 text-xs font-mono">{!isRevision && <>{filteredDocs.length} {t.filesUnit}</>}{isRevision && activeSub}</span></h2>
           {canEditData && !isRevision && (
             <button onClick={() => setModal("upload")} className="px-4 py-2 rounded-md bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex items-center gap-2">
               <Icon name="Upload" /><span>{t.uploadFile}</span>
@@ -1953,7 +2917,10 @@ function App() {
       </Card>
 
       {isRevision
-        ? <Card><MasterSchedule items={master} onSave={setMaster} canEdit={canEditData} isKm={isKm} /></Card>
+        ? <Card>{customPanel === "catMaster" ? <MasterSchedule items={master} onSave={setMaster} canEdit={canEditData} isKm={isKm} t={t} preparedBy={currentUser.name} />
+          : customPanel === "catLeave" ? <LeaveCalendar events={calEvents} onSave={setCalEvents} canEdit={canEditData} isKm={isKm} staffOptions={staffOptions} />
+          : customPanel === "catWarehouse" ? <StockManager state={stock} onSave={setStock} canEdit={canEditData} isKm={isKm} userName={currentUser.name} />
+          : <RequestTracker items={requests} onSave={setRequests} canEdit={canEditData} isKm={isKm} userName={currentUser.name} />}</Card>
         : <Card><DocsTable docs={filteredDocs} t={t} isAdmin={isAdmin} onDelete={deleteDocument} onOpen={openDoc} /></Card>}
     </div>
   );
@@ -2056,7 +3023,7 @@ function App() {
           <select value={newDoc.category} className={INPUT}
             onChange={(e) => {
               const cat = categories.find((c) => c.key === e.target.value);
-              setNewDoc({ ...newDoc, category: e.target.value, subFolder: cat.subFolders[0] || "" }); // ប្តូរប្រភេទ → ជ្រើស Sub-Folder ដំបូងឲ្យ
+              setNewDoc({ ...newDoc, category: e.target.value, subFolder: cat.subFolders.find((s) => !CUSTOM_SUBS_LIST.includes(s)) || "" }); // ប្តូរប្រភេទ → ជ្រើស Sub-Folder ដំបូងឲ្យ
             }}>
             {categories.map((c) => <option key={c.key} value={c.key}>{isKm ? c.labelKm : c.label}</option>)}
           </select>
@@ -2064,7 +3031,7 @@ function App() {
         {subFolderOptions.subFolders.length > 0 && (
           <Field label="Sub-Folder">
             <select value={newDoc.subFolder} className={INPUT} onChange={(e) => setNewDoc({ ...newDoc, subFolder: e.target.value })}>
-              {subFolderOptions.subFolders.map((sub, i) => <option key={sub} value={sub}>{isKm ? subFolderOptions.subFoldersKm[i] : sub}</option>)}
+              {subFolderOptions.subFolders.map((sub, i) => (CUSTOM_SUBS_LIST.includes(sub) ? null : <option key={sub} value={sub}>{isKm ? subFolderOptions.subFoldersKm[i] : sub}</option>))}
             </select>
           </Field>
         )}
@@ -2131,7 +3098,7 @@ function App() {
                 ...editForm,
                 sCurve: [
                   ...editForm.sCurve,
-                  { month: newMonthName, planned: lastItem ? lastItem.planned : 100, actual: lastItem ? lastItem.actual : 0 }
+                  { month: newMonthName, planned: lastItem ? lastItem.planned : 100, actual: 0 }
                 ]
               });
             }} 
@@ -2236,6 +3203,17 @@ function App() {
       {uploadModal}
       {editDashModal}
       {editListModal}
+      {zoomChart && (
+        <ZoomModal title={t.sCurveTitle} isKm={isKm} onClose={() => setZoomChart(false)}
+          right={<div className="hidden sm:flex gap-2 text-[11px] font-bold"><span className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-700 dark:text-blue-300"><i className="w-2 h-2 rounded-full bg-[#3B5BDB]" />Planned</span><span className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-rose-500/10 text-rose-700 dark:text-rose-300"><i className="w-2 h-2 rounded-full bg-[#E11D48]" />Actual</span></div>}>
+          {(w, rot) => <SCurveChart data={sCurve} width={w} rotated={rot} />}
+        </ZoomModal>
+      )}
+      {report && (
+        <PrintModal title="DAILY REPORT" t={t} isKm={isKm} preparedBy={currentUser.name} onClose={() => setReport(false)}>
+          {(ctx) => <DailyReport ctx={ctx} r={{ t, isKm, completePct, completeMonth, daysElapsed, totalDays, remainingDays, dates, trackerCount, sCurve, data, photos }} />}
+        </PrintModal>
+      )}
     </div>
   );
 }
