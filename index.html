@@ -610,32 +610,53 @@ function cropImage(file, w = 800, h = 450) {
   });
 }
 
-// ការកំណត់ Popup កែតារាង: fields = [key, ប្រភេទ input, ឈ្មោះ, ទទឹង]
+// ការកំណត់ Popup កែតារាង: fields = { k: key, type, label, labelKm, w: ទទឹងលើ Desktop, full: ពេញទទឹងលើទូរស័ព្ទ }
 const EDIT_CONFIG = {
   machinery: { titleKey: "machineryTitle", blank: { name: "", qty: 0 },
-    fields: [["name", "text", "Name"], ["qty", "number", "Qty", "w-24"]] },
+    fields: [{ k: "name", type: "text", label: "Name", labelKm: "ឈ្មោះគ្រឿងចក្រ", full: true }, { k: "qty", type: "number", label: "Qty", labelKm: "ចំនួន", w: "w-24" }] },
   manpower: { titleKey: "manpowerTitle", blank: { name: "", qty: 0 },
-    fields: [["name", "text", "Name"], ["qty", "number", "Qty", "w-24"]] },
+    fields: [{ k: "name", type: "text", label: "Name", labelKm: "មុខតំណែង", full: true }, { k: "qty", type: "number", label: "Qty", labelKm: "ចំនួន", w: "w-24" }] },
   milestones: { titleKey: "masterScheduleTitle", blank: { title: "", planned: 0, actual: 0, startDate: "", endDate: "" },
-    fields: [["title", "text", "Name"], ["startDate", "text", "Start dd/mm/yyyy", "w-28"], ["endDate", "text", "End dd/mm/yyyy", "w-28"], ["planned", "number", "Plan %", "w-20"], ["actual", "number", "Actual %", "w-20"]] },
+    fields: [
+      { k: "title", type: "text", label: "Description of work item", labelKm: "ឈ្មោះការងារ (Description)", full: true },
+      { k: "startDate", type: "text", label: "Start (dd/mm/yyyy)", labelKm: "ចាប់ផ្តើម (dd/mm/yyyy)", w: "w-28" },
+      { k: "endDate", type: "text", label: "Finish (dd/mm/yyyy)", labelKm: "បញ្ចប់ (dd/mm/yyyy)", w: "w-28" },
+      { k: "planned", type: "number", label: "Plan %", labelKm: "ផែនការ %", w: "w-20" },
+      { k: "actual", type: "number", label: "Actual %", labelKm: "ជាក់ស្តែង %", w: "w-20" }] },
   weekly: { titleKey: "weeklyPerformance", blank: { week: "", dateRange: "", worker: 0, machinery: 0 },
-    fields: [["week", "text", "Week", "w-24"], ["dateRange", "text", "Date range"], ["worker", "number", "Workers", "w-20"], ["machinery", "number", "Machines", "w-20"]] },
+    fields: [
+      { k: "week", type: "text", label: "Week", labelKm: "សប្តាហ៍", w: "w-24" },
+      { k: "dateRange", type: "text", label: "Date range", labelKm: "ចន្លោះថ្ងៃ", full: true },
+      { k: "worker", type: "number", label: "Workers (persons)", labelKm: "កម្មករ (នាក់)", w: "w-28" },
+      { k: "machinery", type: "number", label: "Machinery (units)", labelKm: "គ្រឿងចក្រ (គ្រឿង)", w: "w-28" }] },
 };
 
-// Popup កែតារាងទូទៅ: កែឈ្មោះ/ថ្ងៃ/លេខ, បន្ថែមជួរថ្មី, លុបជួរ
-function EditListModal({ cfg, title, rows, onSave, onClose, t }) {
+// Popup កែតារាងទូទៅ: មានចំណងជើងជួរឈរ (Desktop) និងស្លាកលើរាល់ប្រអប់ (ទូរស័ព្ទ) ដូច្នេះមិនបាត់កន្លែងបំពេញ
+function EditListModal({ cfg, title, rows, onSave, onClose, t, isKm }) {
   const [list, setList] = useState(rows.map((r) => ({ ...r })));
   const change = (i, key, value) => setList(list.map((r, j) => (j === i ? { ...r, [key]: value } : r)));
+  const lab = (f) => (isKm && f.labelKm ? f.labelKm : f.label);
   return (
-    <Modal title={title} onClose={onClose} width="max-w-3xl">
-      <div className="space-y-2">
+    <Modal title={title} onClose={onClose} width="max-w-4xl">
+      <div className="space-y-2.5">
+        {/* ចំណងជើងជួរឈរ (Desktop) */}
+        <div className="hidden md:flex items-end gap-2 px-0.5 text-[10px] font-bold uppercase text-slate-500 dark:text-slate-400">
+          {cfg.fields.map((f) => <div key={f.k} className={f.w ? f.w : "flex-1"}>{lab(f)}</div>)}
+          <div className="w-6" />
+        </div>
         {list.map((row, i) => (
-          <div key={i} className="flex items-center gap-2">
-            {cfg.fields.map(([key, type, ph, w]) => (
-              <input key={key} type={type} placeholder={ph} value={row[key] ?? ""} className={`${INPUT} ${w || "flex-1"}`}
-                onChange={(e) => change(i, key, type === "number" ? Number(e.target.value) : e.target.value)} />
+          <div key={i} className="p-3 md:p-0 rounded-xl border md:border-0 border-slate-200 dark:border-[#222] bg-slate-50/70 dark:bg-slate-900/40 md:bg-transparent grid grid-cols-2 gap-2 md:flex md:items-center">
+            {cfg.fields.map((f) => (
+              <label key={f.k} className={`block min-w-0 ${f.full ? "col-span-2" : ""} md:contents`}>
+                <span className="md:hidden block mb-0.5 text-[10px] font-bold text-slate-500 dark:text-slate-400">{lab(f)}</span>
+                <input type={f.type} placeholder={lab(f)} value={row[f.k] ?? ""} className={`${INPUT} ${f.w ? "md:" + f.w : "md:flex-1 md:min-w-0"}`}
+                  onChange={(e) => change(i, f.k, f.type === "number" ? Number(e.target.value) : e.target.value)} />
+              </label>
             ))}
-            <button type="button" title={t.delete} onClick={() => setList(list.filter((_, j) => j !== i))} className="p-1 hover:text-rose-600"><Icon name="Trash2" size={14} /></button>
+            <button type="button" title={t.delete} onClick={() => setList(list.filter((_, j) => j !== i))}
+              className="col-span-2 md:col-auto flex items-center justify-end gap-1 p-1 text-slate-500 hover:text-rose-600 md:w-6">
+              <Icon name="Trash2" size={14} /><span className="md:hidden text-[10px] font-bold">{t.delete}</span>
+            </button>
           </div>
         ))}
       </div>
@@ -1035,6 +1056,262 @@ function SCurveChart({ data }) {
   );
 }
 
+/* =====================================================================
+   MASTER CONSTRUCTION SCHEDULE (Revision Tracking)
+   - វាយបញ្ចូលដោយដៃគ្រប់ជួរ: Group (PRELIMINARY WORK...) → Item → Sub-item
+   - ជួរ UNIT, QUANTITY PLANNING, QUANTITY ACTUAL, DURATION, START, FINISH
+   - ក្រាប Gantt បង្ហាញតាម "ខែ" ឬ "ឆ្នាំ"
+   - ជួរដែលមានជួរក្រោមវា (Group) គណនាស្វ័យប្រវត្តិ: Start = តូចបំផុត, Finish = ធំបំផុត, % = មធ្យមតាមរយៈពេល
+   ===================================================================== */
+const MS_DAY = 86400000;
+const msParse = (s) => { if (!s) return null; const d = new Date(s + "T00:00:00"); return isNaN(d) ? null : d; };
+const msDays = (a, b) => Math.round((b - a) / MS_DAY);
+const msFmt = (s) => (s ? s.split("-").reverse().join("/") : "");
+const MS_MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+const msId = () => "r" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+const msRow = (level, name, unit = "", qtyPlan = "", qtyActual = "", start = "", finish = "") => ({ id: msId(), level, name, unit, qtyPlan, qtyActual, start, finish });
+
+// ទិន្នន័យគំរូ (អ្នកអាចកែ/លុបទាំងអស់ដោយចុច Edit)
+const DEFAULT_MASTER = [
+  msRow(0, "PRELIMINARY WORK"),
+  msRow(1, "Mobilization & Site Office", "LS", 1, 1, "2026-05-01", "2026-05-15"),
+  msRow(1, "Site Clearing & Survey", "m2", 5000, 5000, "2026-05-10", "2026-05-31"),
+  msRow(1, "Temporary Facilities", "LS", 1, 1, "2026-05-15", "2026-06-10"),
+  msRow(0, "SUB STRUCTURE WORK"),
+  msRow(1, "Bore Pile", "m", 1200, 1050, "2026-06-01", "2026-08-15"),
+  msRow(1, "Pile Cap & Abutment"),
+  msRow(2, "Excavation", "m3", 800, 800, "2026-07-15", "2026-08-10"),
+  msRow(2, "Reinforcement", "ton", 120, 90, "2026-08-01", "2026-09-10"),
+  msRow(2, "Concrete", "m3", 650, 420, "2026-08-10", "2026-09-30"),
+  msRow(0, "SUPER STRUCTURE WORK"),
+  msRow(1, "RC Pier", "m3", 480, 430, "2026-08-22", "2026-10-19"),
+  msRow(1, "Precast Girder", "nos", 24, 8, "2026-10-01", "2026-11-30"),
+  msRow(1, "Deck Slab", "m3", 900, 0, "2026-11-15", "2026-12-15"),
+  msRow(1, "Finishing & Road Works", "LS", 1, 0, "2026-12-01", "2026-12-31"),
+];
+
+// គណនាលេខរៀង, Start/Finish, Duration, % សម្រេច និង % ដែលគួរសម្រេចបាន ត្រឹមថ្ងៃនេះ
+function msCompute(items, today) {
+  const rows = items.map((r) => ({ ...r, level: Math.max(0, Math.min(2, Number(r.level) || 0)) }));
+  const n = rows.length;
+  const c = [0, 0, 0];
+  rows.forEach((r) => { c[r.level]++; for (let k = r.level + 1; k < 3; k++) c[k] = 0; r.no = c.slice(0, r.level + 1).join("."); });
+  rows.forEach((r, i) => { let j = i + 1; while (j < n && rows[j].level > r.level) j++; r.end = j; r.summary = j > i + 1; });
+  rows.forEach((r) => {
+    const s = msParse(r.start), f = msParse(r.finish);
+    const dur = s && f && f >= s ? msDays(s, f) + 1 : null;
+    const qp = Number(r.qtyPlan), qa = Number(r.qtyActual);
+    const pct = qp > 0 ? Math.max(0, Math.min(100, (qa / qp) * 100)) : 0;
+    const exp = dur ? Math.max(0, Math.min(100, ((today - s) / MS_DAY / dur) * 100)) : 0;
+    r.info = { s, f, dur, pct, exp, w: dur || 1 };
+  });
+  rows.forEach((r, i) => {
+    if (!r.summary) return;
+    let ws = 0, wp = 0, we = 0, s = null, f = null;
+    rows.slice(i + 1, r.end).filter((x) => !x.summary).forEach((x) => {
+      const o = x.info; ws += o.w; wp += o.w * o.pct; we += o.w * o.exp;
+      if (o.s && (!s || o.s < s)) s = o.s;
+      if (o.f && (!f || o.f > f)) f = o.f;
+    });
+    r.info = { s, f, dur: s && f ? msDays(s, f) + 1 : null, pct: ws ? wp / ws : 0, exp: ws ? we / ws : 0, w: ws };
+  });
+  return rows;
+}
+const msEnd = (arr, i) => { let j = i + 1; while (j < arr.length && arr[j].level > arr[i].level) j++; return j; };
+const r1 = (v) => Math.round(v * 10) / 10;
+
+function MasterSchedule({ items, onSave, canEdit, isKm }) {
+  const [mode, setMode] = useState("month");      // "month" | "year"
+  const [draft, setDraft] = useState(null);        // មិនទទេ = កំពុងកែ
+  const editing = draft !== null;
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  const rows = msCompute(editing ? draft : items, today);
+  const L = (en, km) => (isKm ? km : en);
+
+  // ---- ប្រតិបត្តិការលើជួរ (ធ្វើលើ draft) ----
+  const set = (fn) => setDraft((d) => fn(d.map((r) => ({ ...r }))));
+  const upd = (i, k, v) => set((d) => { d[i][k] = v; return d; });
+  const addGroup = () => set((d) => [...d, msRow(0, "NEW GROUP")]);
+  const addBelow = (i) => set((d) => { const lvl = d[i].level === 0 ? 1 : d[i].level; d.splice(msEnd(d, i), 0, msRow(lvl, "")); return d; });
+  const addSub = (i) => set((d) => { if (d[i].level >= 2) return d; d.splice(i + 1, 0, msRow(d[i].level + 1, "")); return d; });
+  const del = (i) => set((d) => { const e = msEnd(d, i); if (e - i > 1 && !window.confirm(L("Delete this row and all rows under it?", "លុបជួរនេះ និងជួរទាំងអស់ក្រោមវា?"))) return d; d.splice(i, e - i); return d; });
+  const moveUp = (i) => set((d) => {
+    let j = i - 1; while (j >= 0 && d[j].level > d[i].level) j--;
+    if (j < 0 || d[j].level < d[i].level) return d;
+    const e = msEnd(d, i); return [...d.slice(0, j), ...d.slice(i, e), ...d.slice(j, i), ...d.slice(e)];
+  });
+  const moveDown = (i) => set((d) => {
+    const e = msEnd(d, i);
+    if (e >= d.length || d[e].level !== d[i].level) return d;
+    const e2 = msEnd(d, e); return [...d.slice(0, i), ...d.slice(e, e2), ...d.slice(i, e), ...d.slice(e2)];
+  });
+  const shift = (i, delta) => set((d) => {
+    const e = msEnd(d, i); const blk = d.slice(i, e);
+    if (delta > 0 && (i === 0 || blk.some((r) => r.level + 1 > 2))) return d;
+    if (delta < 0 && blk.some((r) => r.level - 1 < 0)) return d;
+    blk.forEach((r) => { r.level += delta; }); return d;
+  });
+
+  // ---- ជួរកាលវិភាគ (Timeline) ----
+  const all = rows.map((r) => r.info);
+  const starts = all.map((o) => o.s).filter(Boolean), ends = all.map((o) => o.f).filter(Boolean);
+  const hasChart = starts.length > 0 && ends.length > 0;
+  let rs = null, re = null, ppd = 0, total = 0, segs = [], years = [];
+  if (hasChart) {
+    const mn = new Date(Math.min(...starts)), mx = new Date(Math.max(...ends));
+    ppd = mode === "month" ? 2.4 : 0.8;
+    rs = mode === "month" ? new Date(mn.getFullYear(), mn.getMonth(), 1) : new Date(mn.getFullYear(), 0, 1);
+    re = mode === "month" ? new Date(mx.getFullYear(), mx.getMonth() + 1, 1) : new Date(mx.getFullYear() + 1, 0, 1);
+    total = msDays(rs, re) * ppd;
+    const step = mode === "month" ? 1 : 3;
+    for (let d = new Date(rs); d < re; d = new Date(d.getFullYear(), d.getMonth() + step, 1)) {
+      const nx = new Date(d.getFullYear(), d.getMonth() + step, 1);
+      segs.push({ left: msDays(rs, d) * ppd, w: msDays(d, nx) * ppd, year: d.getFullYear(), label: mode === "month" ? MS_MONTHS[d.getMonth()] : "Q" + (d.getMonth() / 3 + 1) });
+    }
+    segs.forEach((s) => { const y = years.find((x) => x.label === s.year); if (y) y.w += s.w; else years.push({ label: s.year, left: s.left, w: s.w }); });
+  }
+  const todayX = hasChart && today >= rs && today <= re ? msDays(rs, today) * ppd : null;
+
+  // ---- សង្ខេបរួម (គិតតែជួរស្លឹក ទម្ងន់តាមរយៈពេល) ----
+  const leaves = rows.filter((r) => !r.summary);
+  const W = leaves.reduce((a, r) => a + r.info.w, 0) || 1;
+  const overall = leaves.reduce((a, r) => a + r.info.w * r.info.pct, 0) / W;
+  const overallExp = leaves.reduce((a, r) => a + r.info.w * r.info.exp, 0) / W;
+  const ovSt = milestoneStatus({ planned: overallExp, actual: overall });
+
+  const head = "py-2 px-2 text-[10px] font-bold uppercase whitespace-nowrap text-slate-600 dark:text-slate-300";
+  const cellIn = `${INPUT} !px-1.5 !py-1`;
+
+  return (
+    <div className="space-y-4">
+      {/* ក្បាល + ប៊ូតុង */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+        <div>
+          <h3 className="text-base font-black uppercase">{L("Master Construction Schedule", "កាលវិភាគសាងសង់មេ (Master Construction Schedule)")}</h3>
+          <p className="text-[11px] text-slate-500 dark:text-slate-400">{L("Revision tracking: type each work item manually. Groups calculate automatically.", "តាមដានការកែប្រែ: វាយបញ្ចូលការងារនីមួយៗដោយដៃ។ Group គណនាស្វ័យប្រវត្តិ។")}</p>
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="inline-flex rounded-lg bg-slate-100 dark:bg-slate-800 p-0.5 text-xs font-bold">
+            {[["month", L("Month", "តាមខែ")], ["year", L("Year", "តាមឆ្នាំ")]].map(([k, lb]) => (
+              <button key={k} onClick={() => setMode(k)} className={`px-3 py-1 rounded-md ${mode === k ? "bg-white dark:bg-slate-600 shadow text-blue-600 dark:text-white" : "text-slate-500"}`}>{lb}</button>
+            ))}
+          </div>
+          {canEdit && !editing && <button onClick={() => setDraft(items.map((r) => ({ ...r })))} className="px-3 py-1.5 rounded-md bg-blue-600 text-white text-xs font-bold">✎ {L("Edit schedule", "កែកាលវិភាគ")}</button>}
+          {editing && (<>
+            <button onClick={addGroup} className="px-3 py-1.5 rounded-md border border-inherit text-xs font-bold text-blue-600">＋ {L("Add group", "បន្ថែម Group")}</button>
+            <button onClick={() => setDraft(null)} className="px-3 py-1.5 rounded-md border border-inherit text-xs">{L("Cancel", "បោះបង់")}</button>
+            <button onClick={() => { onSave(draft); setDraft(null); }} className="px-4 py-1.5 rounded-md bg-emerald-600 text-white text-xs font-bold">✓ {L("Save", "រក្សាទុក")}</button>
+          </>)}
+        </div>
+      </div>
+
+      {/* សង្ខេបរួម + ពន្យល់ពណ៌ */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <div className="md:col-span-2 p-3 rounded-xl border border-slate-200/80 dark:border-[#222] bg-slate-50/60 dark:bg-slate-900/50 space-y-2">
+          <div className="flex justify-between items-end text-xs">
+            <span className="font-bold uppercase">{L("Overall progress (by quantity)", "វឌ្ឍនភាពរួម (តាមបរិមាណ)")}</span>
+            <span className="font-black text-lg tabular-nums" style={{ color: ovSt.colors[0] }}>{r1(overall)}%</span>
+          </div>
+          <GradientBar percent={overall} colors={ovSt.colors} height="h-3" marker={overallExp} />
+          <div className="flex justify-between text-[10px] text-slate-500 dark:text-slate-400">
+            <span>▎{L("Should be by today", "គួរសម្រេចបានត្រឹមថ្ងៃនេះ")}: {r1(overallExp)}%</span>
+            <span className={`px-1.5 rounded-full font-bold ${ovSt.chip}`}>{ovSt.label}</span>
+          </div>
+        </div>
+        <div className="p-3 rounded-xl border border-slate-200/80 dark:border-[#222] bg-slate-50/60 dark:bg-slate-900/50 text-[11px] space-y-1.5">
+          <div className="flex items-center gap-2"><span className="inline-block w-6 h-3 rounded-sm bg-blue-200 dark:bg-blue-900/60 border border-blue-300" />{L("Planned duration", "រយៈពេលផែនការ")}</div>
+          <div className="flex items-center gap-2"><span className="inline-block w-6 h-3 rounded-sm" style={{ background: "linear-gradient(90deg,#059669,#34D399)" }} />{L("Actual progress (green / amber / red = on track / slight / delayed)", "វឌ្ឍនភាពជាក់ស្តែង (បៃតង / លឿង / ក្រហម)")}</div>
+          <div className="flex items-center gap-2"><span className="inline-block w-6 h-0.5 bg-rose-500" />{L("Today", "ថ្ងៃនេះ")}</div>
+        </div>
+      </div>
+
+      {/* តារាង + Gantt */}
+      <div className="overflow-x-auto rounded-lg border border-slate-200 dark:border-[#222]">
+        <table className="border-collapse text-xs" style={{ minWidth: "100%" }}>
+          <thead>
+            <tr className="bg-slate-100 dark:bg-slate-900 border-b border-slate-200 dark:border-[#222] text-left">
+              <th className={`${head} sticky left-0 z-20 bg-slate-100 dark:bg-slate-900 min-w-[230px]`}>{L("No. / Description of work", "លេខ / ឈ្មោះការងារ")}</th>
+              <th className={head}>{L("Unit", "ឯកតា")}</th>
+              <th className={`${head} text-right`}>{L("Qty planning", "បរិមាណផែនការ")}</th>
+              <th className={`${head} text-right`}>{L("Qty actual", "បរិមាណជាក់ស្តែង")}</th>
+              <th className={`${head} text-right`}>{L("Duration", "រយៈពេល")}</th>
+              <th className={head}>{L("Start", "ចាប់ផ្តើម")}</th>
+              <th className={head}>{L("Finish", "បញ្ចប់")}</th>
+              <th className={`${head} text-right`}>%</th>
+              {editing && <th className={head}>{L("Row", "ជួរ")}</th>}
+              <th className="p-0 align-top" style={{ minWidth: hasChart ? total + 44 : 120 }}>
+                {hasChart ? (
+                  <div className="relative" style={{ height: 48, width: total + 44 }}>
+                    {years.map((y) => <div key={y.label} className="absolute top-0 h-6 flex items-center justify-center text-[10px] font-black border-l border-slate-300 dark:border-slate-700 bg-slate-200/60 dark:bg-slate-800" style={{ left: y.left, width: y.w }}>{y.label}</div>)}
+                    {segs.map((s, k) => <div key={k} className="absolute top-6 h-6 flex items-center justify-center text-[9px] font-bold font-mono border-l border-slate-300 dark:border-slate-700 text-slate-500 dark:text-slate-400" style={{ left: s.left, width: s.w }}>{s.label}</div>)}
+                  </div>
+                ) : <div className="px-2 text-[10px] text-slate-400 normal-case">{L("Add Start & Finish dates to see the chart", "បញ្ចូលថ្ងៃ Start/Finish ដើម្បីមើលក្រាប")}</div>}
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.length === 0 && <tr><td colSpan={10} className="p-6 text-center text-slate-500">{L("No items yet. Click Edit schedule → Add group.", "មិនទាន់មានការងារ។ ចុច កែកាលវិភាគ → បន្ថែម Group។")}</td></tr>}
+            {rows.map((r, i) => {
+              const o = r.info, st = milestoneStatus({ planned: o.exp, actual: o.pct });
+              const isG = r.level === 0;
+              const rowBg = isG ? "bg-slate-100/80 dark:bg-slate-900" : r.summary ? "bg-slate-50 dark:bg-[#121212]" : "bg-white dark:bg-[#0F0F0F]";
+              const bar = o.s && o.f ? { left: msDays(rs, o.s) * ppd, w: Math.max(4, o.dur * ppd) } : null;
+              return (
+                <tr key={r.id} className={`border-b border-slate-100 dark:border-[#1d1d1d] ${rowBg} ${isG ? "font-bold" : ""}`}>
+                  <td className={`py-1.5 px-2 sticky left-0 z-10 ${rowBg} border-r border-slate-100 dark:border-[#1d1d1d]`} style={{ paddingLeft: 8 + r.level * 14 }}>
+                    <div className="flex items-center gap-1.5">
+                      <span className="font-mono text-[10px] text-slate-400 shrink-0 w-8">{r.no}</span>
+                      {editing ? <input value={r.name} placeholder={isG ? "GROUP NAME" : L("Work item", "ឈ្មោះការងារ")} onChange={(e) => upd(i, "name", isG ? e.target.value.toUpperCase() : e.target.value)} className={`${cellIn} ${isG ? "font-bold" : ""}`} />
+                        : <span className={isG ? "uppercase" : ""}>{r.name || "—"}</span>}
+                    </div>
+                  </td>
+                  <td className="py-1.5 px-2 whitespace-nowrap">{r.summary ? "" : editing ? <input value={r.unit} onChange={(e) => upd(i, "unit", e.target.value)} className={`${cellIn} w-16`} /> : r.unit}</td>
+                  <td className="py-1.5 px-2 text-right tabular-nums">{r.summary ? "" : editing ? <input type="number" value={r.qtyPlan} onChange={(e) => upd(i, "qtyPlan", e.target.value === "" ? "" : Number(e.target.value))} className={`${cellIn} w-24 text-right`} /> : (r.qtyPlan === "" ? "" : Number(r.qtyPlan).toLocaleString())}</td>
+                  <td className="py-1.5 px-2 text-right tabular-nums">{r.summary ? "" : editing ? <input type="number" value={r.qtyActual} onChange={(e) => upd(i, "qtyActual", e.target.value === "" ? "" : Number(e.target.value))} className={`${cellIn} w-24 text-right`} /> : (r.qtyActual === "" ? "" : Number(r.qtyActual).toLocaleString())}</td>
+                  <td className="py-1.5 px-2 text-right tabular-nums whitespace-nowrap">{o.dur ? `${o.dur} ${L("d", "ថ្ងៃ")}` : "—"}</td>
+                  <td className="py-1.5 px-2 whitespace-nowrap font-mono">{!r.summary && editing ? <input type="date" value={r.start} onChange={(e) => upd(i, "start", e.target.value)} className={`${cellIn} w-32`} /> : (o.s ? msFmt(r.summary ? `${o.s.getFullYear()}-${String(o.s.getMonth() + 1).padStart(2, "0")}-${String(o.s.getDate()).padStart(2, "0")}` : r.start) : "—")}</td>
+                  <td className="py-1.5 px-2 whitespace-nowrap font-mono">{!r.summary && editing ? <input type="date" value={r.finish} onChange={(e) => upd(i, "finish", e.target.value)} className={`${cellIn} w-32`} /> : (o.f ? msFmt(r.summary ? `${o.f.getFullYear()}-${String(o.f.getMonth() + 1).padStart(2, "0")}-${String(o.f.getDate()).padStart(2, "0")}` : r.finish) : "—")}</td>
+                  <td className="py-1.5 px-2 text-right font-black tabular-nums" style={{ color: st.colors[0] }}>{r1(o.pct)}%</td>
+                  {editing && (
+                    <td className="py-1 px-2 whitespace-nowrap">
+                      <div className="flex items-center gap-0.5 text-[13px]">
+                        <button type="button" title={L("Move up", "ឡើងលើ")} onClick={() => moveUp(i)} className="px-1 hover:text-blue-600">▲</button>
+                        <button type="button" title={L("Move down", "ចុះក្រោម")} onClick={() => moveDown(i)} className="px-1 hover:text-blue-600">▼</button>
+                        <button type="button" title={L("Outdent", "ចេញក្រៅ")} onClick={() => shift(i, -1)} className="px-1 hover:text-blue-600">⇤</button>
+                        <button type="button" title={L("Indent", "ចូលក្នុង")} onClick={() => shift(i, 1)} className="px-1 hover:text-blue-600">⇥</button>
+                        <button type="button" title={isG ? L("Add item in group", "បន្ថែមការងារក្នុង Group") : L("Add row below", "បន្ថែមជួរខាងក្រោម")} onClick={() => addBelow(i)} className="px-1 font-black text-blue-600">＋</button>
+                        {r.level < 2 && <button type="button" title={L("Add sub-item", "បន្ថែមការងារតូច")} onClick={() => addSub(i)} className="px-1 text-blue-600">↳</button>}
+                        <button type="button" title={L("Delete", "លុប")} onClick={() => del(i)} className="px-1 text-rose-600"><Icon name="Trash2" size={13} /></button>
+                      </div>
+                    </td>
+                  )}
+                  <td className="p-0">
+                    {hasChart && (
+                      <div className="relative h-9" style={{ width: total + 44 }}>
+                        {segs.map((s, k) => <div key={k} className="absolute top-0 bottom-0 border-l border-slate-200/80 dark:border-[#1f1f1f]" style={{ left: s.left }} />)}
+                        {todayX != null && <div className="absolute top-0 bottom-0 w-px bg-rose-500/80 z-[1]" style={{ left: todayX }} />}
+                        {bar && (<>
+                          <div className={`absolute rounded-sm overflow-hidden ${r.summary ? "top-3 h-3 bg-slate-300 dark:bg-slate-600" : "top-2.5 h-4 bg-blue-200/80 dark:bg-blue-900/60 border border-blue-300/70 dark:border-blue-700/60"}`}
+                            style={{ left: bar.left, width: bar.w }}
+                            title={`${r.name}: ${msFmt(r.start) || ""} → ${msFmt(r.finish) || ""} · ${L("Actual", "ជាក់ស្តែង")} ${r1(o.pct)}% · ${L("Plan by today", "ផែនការត្រឹមថ្ងៃនេះ")} ${r1(o.exp)}%`}>
+                            <div className="h-full" style={{ width: `${o.pct}%`, background: `linear-gradient(90deg, ${st.colors[0]}, ${st.colors[1]})`, transition: "width .6s" }} />
+                          </div>
+                          <span className="absolute top-2.5 text-[10px] font-bold tabular-nums leading-4" style={{ left: bar.left + bar.w + 4, color: st.colors[0] }}>{r1(o.pct)}%</span>
+                        </>)}
+                      </div>
+                    )}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+      {editing && <p className="text-[11px] text-slate-500 dark:text-slate-400">{L("Tip: % = Qty actual ÷ Qty planning. Rows with sub-rows (groups) are calculated automatically. ▲▼ move, ⇤⇥ change level, ＋ add row, ↳ add sub-item.", "ណែនាំ: % = បរិមាណជាក់ស្តែង ÷ បរិមាណផែនការ។ ជួរដែលមានជួរតូចក្រោម (Group) គណនាស្វ័យប្រវត្តិ។ ▲▼ ផ្លាស់ទី, ⇤⇥ ប្តូរកម្រិត, ＋ បន្ថែមជួរ, ↳ បន្ថែមការងារតូច។")}</p>}
+    </div>
+  );
+}
+
 function App() {
   /* ---------- ក. State (ទិន្នន័យដែលផ្លាស់ប្តូរបាន) ---------- */
   const [lang, setLang] = useState("en");               // ភាសា: "en" ឬ "km"
@@ -1061,8 +1338,12 @@ function App() {
   const [editing, setEditing] = useState(null);          // តារាងដែលកំពុងកែ: "machinery" | "manpower" | "milestones" | "weekly" | null
   const [newFile, setNewFile] = useState(null);          // File ដែលបានជ្រើសពី PC
   const [sCurve, setSCurve] = usePersist("tia-scurve", initialSCurveData);
-  const [completePct, setCompletePct] = usePersist("tia-pct", 68);   // % ការងារសម្រេចបាន
+  // % ការងារសម្រេចបាន = Actual នៃខែចុងក្រោយដែលមានទិន្នន័យ (>0) ក្នុង S-Curve → Auto update
+  const lastActual = [...sCurve].reverse().find((d) => Number(d.actual) > 0);
+  const completePct = lastActual ? Math.round(Number(lastActual.actual) * 10) / 10 : 0;
+  const completeMonth = lastActual ? lastActual.month : "";
   const [dates, setDates] = usePersist("tia-dates", { startDate: "2026-05-01", endDate: "2026-12-31" });
+  const [master, setMaster] = usePersist("tia-master", DEFAULT_MASTER);   // Master Construction Schedule (វាយដោយដៃ)
   const [trackerManual, setTrackerManual] = usePersist("tia-trackers", { RFI: "", RFA: "", SI: "", NCR: "" }); // លេខ RFI/RFA/SI/NCR បញ្ចូលដោយដៃ ("" = រាប់ស្វ័យប្រវត្តិ)
 
   const [filters, setFilters] = useState({ search: "", format: "ALL", status: "ALL", sort: "DATE_DESC" });
@@ -1309,12 +1590,11 @@ function App() {
 
   // បើក Form កែប្រែ Dashboard (ចម្លងតម្លៃបច្ចុប្បន្នមកកែ)
   const openEditDash = () => {
-    setEditForm({ pct: completePct, dates: { ...dates }, sCurve: sCurve.map((d) => ({ ...d })), trackers: { ...trackerManual } });
+    setEditForm({ dates: { ...dates }, sCurve: sCurve.map((d) => ({ ...d })), trackers: { ...trackerManual } });
     setModal("editDash");
   };
   const saveEditDash = (e) => {
     e.preventDefault();
-    setCompletePct(editForm.pct);
     setDates(editForm.dates);
     setSCurve(editForm.sCurve);
     setTrackerManual(editForm.trackers);
@@ -1408,8 +1688,8 @@ function App() {
         <span className="hidden sm:inline">Date: {new Date().toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric", year: "numeric" })}</span>
         <span className="text-emerald-600">Active Online: {online}</span>
         {stats.visitors != null
-          ? <><span className="text-blue-600" title="Unique visitors (1 per browser)">Total Visitors: {stats.visitors.toLocaleString()}</span>
-              <span className="hidden md:inline text-slate-500" title="Visits (1 per session)">Visits: {stats.visits == null ? "…" : stats.visits.toLocaleString()}</span></>
+          ? <><span className="text-blue-600" title="Visitors = ចំនួនអ្នកចូលមើល (រាប់ម្នាក់ម្តងក្នុង ១ Browser)">Total Visitors: {stats.visitors.toLocaleString()}</span>
+              {isAdmin && <span className="hidden md:inline text-slate-500" title="Visits = ចំនួនដងចូលមើលសរុប (រាប់ម្តងក្នុង ១ session)">Visits: {stats.visits == null ? "…" : stats.visits.toLocaleString()}</span>}</>
           : <span className="text-blue-600">Total Visits: {stats.visits == null ? "…" : stats.visits.toLocaleString()}</span>}
       </div>
       <div className="flex flex-wrap items-center gap-2">
@@ -1436,6 +1716,7 @@ function App() {
           <div>
             <div className="text-xs font-bold uppercase">{t.overallProject}</div>
             <div className="text-3xl font-black mt-1 tabular-nums">{completePct}%</div>
+            {completeMonth && <div className="text-[10px] font-mono text-slate-500 dark:text-slate-400 mt-0.5" title="Auto: Actual ខែចុងក្រោយក្នុង S-Curve">{isKm ? "ត្រឹមខែ" : "as of"} {completeMonth} · auto</div>}
             <div className="flex flex-wrap gap-1.5 mt-2 text-[11px] font-bold">
               <span className="px-2 py-0.5 rounded-full bg-emerald-500/12 text-emerald-600 dark:text-emerald-400">{t.projectComplete}: {completePct}%</span>
               <span className="px-2 py-0.5 rounded-full bg-rose-500/12 text-rose-600 dark:text-rose-400">{t.remaining}: {100 - completePct}%</span>
@@ -1531,16 +1812,16 @@ function App() {
               return (
                 <div key={i} className="p-3 rounded-xl border border-slate-200/80 dark:border-[#222] bg-slate-50/60 dark:bg-slate-900/50 text-xs space-y-2">
                   <div className="flex items-start justify-between gap-2">
-                    <span className="font-bold leading-snug">{item.title}</span>
+                    <span className="font-bold leading-snug min-w-0 break-words">{item.title}</span>
                     <span className="font-black text-sm tabular-nums" style={{ color: st.colors[0] }}>{item.actual}%</span>
                   </div>
                   <GradientBar percent={item.actual} colors={st.colors} marker={item.planned} />
-                  <div className="flex items-center justify-between text-[10px]">
-                    <span className="flex items-center gap-1.5">
+                  <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5 text-[10px]">
+                    <span className="flex flex-wrap items-center gap-1.5">
                       <span className={`px-1.5 py-0.5 rounded-full font-bold ${st.chip}`}>{st.label}{st.gap !== 0 && Number(item.actual) < 100 ? ` ${st.gap > 0 ? "+" : ""}${st.gap}%` : ""}</span>
                       <span className="text-slate-500 dark:text-slate-400">▎Plan {item.planned}%</span>
                     </span>
-                    <span className="font-mono text-slate-500 dark:text-slate-400">{item.startDate} → {item.endDate}</span>
+                    <span className="font-mono text-slate-500 dark:text-slate-400 whitespace-nowrap">{item.startDate} → {item.endDate}</span>
                   </div>
                 </div>
               );
@@ -1621,12 +1902,13 @@ function App() {
   );
 
   // ===== ទំព័រប្រភេទឯកសារ (Drawing, Method Statement, ...) =====
+  const isRevision = currentCategory && currentCategory.key === "catMaster" && activeSub === "Revision Tracking";
   const categoryView = currentCategory && (
     <div className="space-y-6">
       <Card className="space-y-4">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <h2 className="text-lg font-bold uppercase">{isKm ? currentCategory.labelKm : currentCategory.label} <span className="ml-2 normal-case px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400 text-xs font-mono">{filteredDocs.length} {t.filesUnit}</span></h2>
-          {canEditData && (
+          <h2 className="text-lg font-bold uppercase">{isKm ? currentCategory.labelKm : currentCategory.label} <span className="ml-2 normal-case px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400 text-xs font-mono">{!isRevision && <>{filteredDocs.length} {t.filesUnit}</>}{isRevision && "Revision Tracking"}</span></h2>
+          {canEditData && !isRevision && (
             <button onClick={() => setModal("upload")} className="px-4 py-2 rounded-md bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex items-center gap-2">
               <Icon name="Upload" /><span>{t.uploadFile}</span>
             </button>
@@ -1647,7 +1929,7 @@ function App() {
         )}
 
         {/* ស្វែងរក + តម្រង Format + តម្រង Status + តម្រៀប */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-3 pt-3 border-t border-inherit">
+        {!isRevision && <div className="grid grid-cols-1 md:grid-cols-4 gap-3 pt-3 border-t border-inherit">
           <div className="relative">
             <Icon name="Search" className="absolute left-3 top-2.5 text-slate-400" />
             <input type="text" placeholder={t.searchPlaceholder} value={filters.search}
@@ -1667,10 +1949,12 @@ function App() {
             <option value="NAME_ASC">{t.sortNameAsc}</option>
             <option value="NAME_DESC">{t.sortNameDesc}</option>
           </select>
-        </div>
+        </div>}
       </Card>
 
-      <Card><DocsTable docs={filteredDocs} t={t} isAdmin={isAdmin} onDelete={deleteDocument} onOpen={openDoc} /></Card>
+      {isRevision
+        ? <Card><MasterSchedule items={master} onSave={setMaster} canEdit={canEditData} isKm={isKm} /></Card>
+        : <Card><DocsTable docs={filteredDocs} t={t} isAdmin={isAdmin} onDelete={deleteDocument} onOpen={openDoc} /></Card>}
     </div>
   );
 
@@ -1810,8 +2094,9 @@ function App() {
     <Modal title={t.editDashData} onClose={() => setModal(null)} width="max-w-xl">
       <form onSubmit={saveEditDash} className="space-y-4">
         <div className="grid grid-cols-3 gap-3">
-          <Field label="Completion (%)">
-            <input type="number" value={editForm.pct} className={INPUT} onChange={(e) => setEditForm({ ...editForm, pct: Number(e.target.value) })} />
+          <Field label={isKm ? "Completion (%) — Auto ពី S-Curve" : "Completion (%) — auto from S-Curve"}>
+            {(() => { const la = [...editForm.sCurve].reverse().find((d) => Number(d.actual) > 0);
+              return <div className={`${INPUT} bg-slate-100 dark:bg-slate-900 font-bold text-emerald-600 dark:text-emerald-400`}>{la ? `${la.actual}%  (${la.month})` : "0%"}</div>; })()}
           </Field>
           <Field label="Project Start Date">
             <input type="date" value={editForm.dates.startDate} className={INPUT} onChange={(e) => setEditForm({ ...editForm, dates: { ...editForm.dates, startDate: e.target.value } })} />
@@ -1917,7 +2202,7 @@ function App() {
 
   // ៥) កែតារាង (Machinery, Manpower, Milestones, Weekly)
   const editListModal = editing && canEditData && (
-    <EditListModal cfg={EDIT_CONFIG[editing]} title={`${t.edit}: ${t[EDIT_CONFIG[editing].titleKey]}`} rows={data[editing]} t={t}
+    <EditListModal cfg={EDIT_CONFIG[editing]} title={`${t.edit}: ${t[EDIT_CONFIG[editing].titleKey]}`} rows={data[editing]} t={t} isKm={isKm}
       onClose={() => setEditing(null)}
       onSave={(rows) => { setData({ ...data, [editing]: rows }); setEditing(null); }} />
   );
