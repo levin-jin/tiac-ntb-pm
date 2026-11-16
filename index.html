@@ -132,7 +132,7 @@ const translations = {
     saveChanges: "Save Changes",
     sCurveTitle: "S-Curve Progress",
     masterScheduleTitle: "Master schedule milestones in progress",
-    droneGalleryTitle: "Real Site Photo & Drone Inspection (15 Photos)",
+    droneGalleryTitle: "Real Site Aerial Drone Inspection",
     subCategoryHeading: "Sub-Folders Navigation",
     lightScheme: "Day Mode",
     darkScheme: "Night Mode",
@@ -204,7 +204,7 @@ const translations = {
     saveChanges: "រក្សាទុកការកែប្រែ",
     sCurveTitle: "ក្រាប S-Curve ដំណើរការគម្រោង",
     masterScheduleTitle: "តារាងតាមដានកាលវិភាគការងារកំពុងដំណើរការ",
-    droneGalleryTitle: "រូបថតការដ្ឋាន និងដ្រូនពិនិត្យជាក់ស្តែង (១៥ រូបថត)",
+    droneGalleryTitle: "រូបភាពដ្រូនពិនិត្យការដ្ឋានជាក់ស្តែង (៥ រូបថត)",
     subCategoryHeading: "ផ្នែករងប្រព័ន្ធឯកសារ",
     lightScheme: "ពន្លឺ (Day Mode)",
     darkScheme: "ងងឹត (Night Mode)",
@@ -758,6 +758,42 @@ function DocsTable({ docs, t, isAdmin, onDelete, onOpen }) {
 }
 
 // កម្មវិធីបញ្ចាំងរូបថត Drone (ប្តូររូបស្វ័យប្រវត្តិរៀងរាល់ ៤ វិនាទី) + ប៊ូតុង Upload រូប 10
+function DroneGallery({ images, title, onUpload, uploadLabel }) {
+  const [index, setIndex] = useState(0);
+  const [playing, setPlaying] = useState(true);
+  useEffect(() => {
+    if (!playing || images.length < 2) return;
+    const timer = setInterval(() => setIndex((i) => (i + 1) % images.length), 4000);
+    return () => clearInterval(timer);
+  }, [playing, images.length]);
+  const current = images[index % Math.max(1, images.length)];
+  const btn = "p-1 rounded border border-inherit hover:bg-slate-200 dark:hover:bg-slate-800";
+  return (
+    <div>
+      <CardTitle icon="Image" right={
+        <div className="flex items-center gap-1">
+          {onUpload && (
+            <label className="px-2 py-0.5 rounded bg-emerald-600 text-white text-[10px] font-bold cursor-pointer">
+              {uploadLabel}<input type="file" accept="image/*" multiple hidden onChange={onUpload} />
+            </label>
+          )}
+          <button className={btn} onClick={() => setIndex((i) => (i - 1 + images.length) % images.length)}><Icon name="ChevronLeft" size={14} /></button>
+          <button className={btn} onClick={() => setIndex((i) => (i + 1) % images.length)}><Icon name="ChevronRight" size={14} /></button>
+          <button className={btn} onClick={() => setPlaying(!playing)}><Icon name={playing ? "Pause" : "Play"} size={14} /></button>
+        </div>
+      }>{title}</CardTitle>
+      {current ? (
+        <div className="relative rounded-md overflow-hidden aspect-video border border-inherit">
+          <img src={current.url} alt="Drone view" className="w-full h-full object-cover" />
+          <div className="absolute bottom-0 inset-x-0 px-3 pt-10 pb-2.5 bg-gradient-to-t from-black/65 via-black/25 to-transparent text-white text-[12px] font-bold flex items-end justify-between gap-2 pointer-events-none">
+            <span className="truncate" style={{ textShadow: "0 1px 4px rgba(0,0,0,.85)" }}>{current.caption}</span>
+            <span className="shrink-0 font-mono text-[10px] px-2 py-0.5 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white">{index % images.length + 1} / {images.length}</span>
+          </div>
+        </div>
+      ) : <div className="text-xs text-slate-500 py-6 text-center">No photos yet.</div>}
+    </div>
+  );
+}
 
 /* =====================================================================
    ផ្នែកទី ៥៖ App ចម្បង
@@ -1091,13 +1127,6 @@ function MasterSchedule({ items, onSave, canEdit, isKm }) {
   const today = new Date(); today.setHours(0, 0, 0, 0);
   const rows = msCompute(editing ? draft : items, today);
   const L = (en, km) => (isKm ? km : en);
-  const [psize, setPsize] = useState("A4"); // ទំហំក្រដាស Print: A4 ឬ A3
-  const printSchedule = () => {
-    const w = window.open("", "_blank");
-    const d2 = (d) => (d ? `${String(d.getDate()).padStart(2, "0")}/${String(d.getMonth() + 1).padStart(2, "0")}/${d.getFullYear()}` : "");
-    const body = `<h2>Master Construction Schedule (Revision Tracking)</h2><table><tr><th>No.</th><th>BOQ</th><th>Description of work</th><th>Unit</th><th>Qty plan</th><th>Qty actual</th><th>Duration</th><th>Start</th><th>Finish</th><th>%</th></tr>${rows.map((r) => `<tr style="${r.level === 0 ? "font-weight:bold;background:#eef2fb" : ""}"><td>${esc(r.no)}</td><td>${esc(r.boq)}</td><td style="padding-left:${6 + r.level * 12}px">${esc(r.name)}</td><td>${r.summary ? "" : esc(r.unit)}</td><td>${r.summary ? "" : esc(r.qtyPlan)}</td><td>${r.summary ? "" : esc(r.qtyActual)}</td><td>${r.info.dur || ""}</td><td>${d2(r.info.s)}</td><td>${d2(r.info.f)}</td><td>${r1(r.info.pct)}%</td></tr>`).join("")}</table>`;
-    printDoc("Master Schedule", body, psize, w, true);
-  };
 
   // ---- ប្រតិបត្តិការលើជួរ (ធ្វើលើ draft) ----
   const set = (fn) => setDraft((d) => fn(d.map((r) => ({ ...r }))));
@@ -1167,12 +1196,6 @@ function MasterSchedule({ items, onSave, canEdit, isKm }) {
               <button key={k} onClick={() => setMode(k)} className={`px-3 py-1 rounded-md ${mode === k ? "bg-white dark:bg-slate-600 shadow text-blue-600 dark:text-white" : "text-slate-500"}`}>{lb}</button>
             ))}
           </div>
-          {!editing && (
-            <span className="flex items-center gap-1">
-              <select value={psize} onChange={(e) => setPsize(e.target.value)} className="px-1.5 py-1.5 rounded-md border border-inherit bg-transparent text-xs font-bold"><option>A4</option><option>A3</option></select>
-              <button onClick={printSchedule} className="px-3 py-1.5 rounded-md bg-slate-700 text-white text-xs font-bold">🖨 Print</button>
-            </span>
-          )}
           {canEdit && !editing && <button onClick={() => setDraft(items.map((r) => ({ ...r })))} className="px-3 py-1.5 rounded-md bg-blue-600 text-white text-xs font-bold">✎ {L("Edit schedule", "កែកាលវិភាគ")}</button>}
           {editing && (<>
             <button onClick={addGroup} className="px-3 py-1.5 rounded-md border border-inherit text-xs font-bold text-blue-600">＋ {L("Add group", "បន្ថែម Group")}</button>
@@ -1208,7 +1231,6 @@ function MasterSchedule({ items, onSave, canEdit, isKm }) {
           <thead>
             <tr className="bg-slate-100 dark:bg-slate-900 border-b border-slate-200 dark:border-[#222] text-left">
               <th className={`${head} sticky left-0 z-20 bg-slate-100 dark:bg-slate-900 min-w-[230px]`}>{L("No. / Description of work", "លេខ / ឈ្មោះការងារ")}</th>
-              <th className={head}>BOQ</th>
               <th className={head}>{L("Unit", "ឯកតា")}</th>
               <th className={`${head} text-right`}>{L("Qty planning", "បរិមាណផែនការ")}</th>
               <th className={`${head} text-right`}>{L("Qty actual", "បរិមាណជាក់ស្តែង")}</th>
@@ -1228,7 +1250,7 @@ function MasterSchedule({ items, onSave, canEdit, isKm }) {
             </tr>
           </thead>
           <tbody>
-            {rows.length === 0 && <tr><td colSpan={11} className="p-6 text-center text-slate-500">{L("No items yet. Click Edit schedule → Add group.", "មិនទាន់មានការងារ។ ចុច កែកាលវិភាគ → បន្ថែម Group។")}</td></tr>}
+            {rows.length === 0 && <tr><td colSpan={10} className="p-6 text-center text-slate-500">{L("No items yet. Click Edit schedule → Add group.", "មិនទាន់មានការងារ។ ចុច កែកាលវិភាគ → បន្ថែម Group។")}</td></tr>}
             {rows.map((r, i) => {
               const o = r.info, st = milestoneStatus({ planned: o.exp, actual: o.pct });
               const isG = r.level === 0;
@@ -1243,7 +1265,6 @@ function MasterSchedule({ items, onSave, canEdit, isKm }) {
                         : <span className={isG ? "uppercase" : ""}>{r.name || "—"}</span>}
                     </div>
                   </td>
-                  <td className="py-1.5 px-2 whitespace-nowrap font-mono">{editing ? <input value={r.boq || ""} placeholder="A1.1" onChange={(e) => upd(i, "boq", e.target.value)} className={`${cellIn} w-20`} /> : (r.boq || "")}</td>
                   <td className="py-1.5 px-2 whitespace-nowrap">{r.summary ? "" : editing ? <input value={r.unit} onChange={(e) => upd(i, "unit", e.target.value)} className={`${cellIn} w-16`} /> : r.unit}</td>
                   <td className="py-1.5 px-2 text-right tabular-nums">{r.summary ? "" : editing ? <input type="number" value={r.qtyPlan} onChange={(e) => upd(i, "qtyPlan", e.target.value === "" ? "" : Number(e.target.value))} className={`${cellIn} w-24 text-right`} /> : (r.qtyPlan === "" ? "" : Number(r.qtyPlan).toLocaleString())}</td>
                   <td className="py-1.5 px-2 text-right tabular-nums">{r.summary ? "" : editing ? <input type="number" value={r.qtyActual} onChange={(e) => upd(i, "qtyActual", e.target.value === "" ? "" : Number(e.target.value))} className={`${cellIn} w-24 text-right`} /> : (r.qtyActual === "" ? "" : Number(r.qtyActual).toLocaleString())}</td>
@@ -1291,133 +1312,6 @@ function MasterSchedule({ items, onSave, canEdit, isKm }) {
   );
 }
 
-// ===== ឧបករណ៍ជំនួយ: បោះពុម្ព/PDF, រូបថតតាម Link, Zoom ក្រាប =====
-const esc = (s) => String(s == null ? "" : s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-
-// បើកទំព័របោះពុម្ព (A4/A3) ក្នុង Tab ថ្មី: ជ្រើស "Save as PDF" ក្នុងប្រអប់ Print ដើម្បីបាន PDF
-const printDoc = (title, body, size = "A4", w = null, landscape = false) => {
-  w = w || window.open("", "_blank");
-  if (!w) return alert("Please allow pop-ups to print.");
-  const date = new Date().toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
-  w.document.open();
-  w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>${esc(title)}</title><style>
-  @page{size:${size}${landscape ? " landscape" : ""};margin:12mm}
-  body{font-family:Arial,"Battambang",sans-serif;color:#111;font-size:11px}
-  h1{font-size:18px;margin:0}h2{font-size:13px;margin:14px 0 6px;border-bottom:2px solid #1B2A4E;padding-bottom:3px;text-transform:uppercase;break-after:avoid}
-  .hd{display:flex;justify-content:space-between;border-bottom:3px solid #1B2A4E;padding-bottom:8px}
-  table{border-collapse:collapse;width:100%;font-size:10px}th,td{border:1px solid #bbb;padding:3px 5px;text-align:left}th{background:#e8edf7}tr{break-inside:avoid}
-  .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.box{border:1px solid #bbb;border-radius:6px;padding:6px;break-inside:avoid}.big{font-size:20px;font-weight:800}
-  .photos{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.ph{border:1px solid #bbb;border-radius:6px;overflow:hidden;break-inside:avoid}.ph img{width:100%;height:130px;object-fit:cover;display:block}.ph div{padding:4px 6px;font-size:10px}
-  </style></head><body><div class="hd"><div><h1>T.I.A CONSTRUCTION</h1><div>New Twin Bridge At Stoeng Prek Thnoat</div></div>
-  <div style="text-align:right"><b>${esc(title)}</b><br>Date: ${date}</div></div>${body}
-  <script>window.onload=function(){setTimeout(function(){window.print()},700)}<\/script></body></html>`);
-  w.document.close();
-};
-
-// S-Curve ឋិតិវន្ត (SVG) សម្រាប់ Report: មិនគូសខែដែល 0%
-const scurveSvg = (d) => {
-  const W = 560, H = 200, L = 30, T = 10, B = 24, n = d.length;
-  const x = (i) => L + (i * (W - L - 10)) / Math.max(1, n - 1), y = (v) => T + (1 - v / 100) * (H - T - B);
-  const line = (k, c) => `<polyline fill="none" stroke="${c}" stroke-width="2.5" points="${d.map((r, i) => (Number(r[k]) > 0 ? `${x(i)},${y(r[k])}` : null)).filter(Boolean).join(" ")}"/>`
-    + d.map((r, i) => (Number(r[k]) > 0 ? `<circle cx="${x(i)}" cy="${y(r[k])}" r="3" fill="${c}"/><text x="${x(i)}" y="${y(r[k]) + (k === "planned" ? -6 : 13)}" font-size="8" text-anchor="middle" fill="${c}" font-weight="bold">${r[k]}%</text>` : "")).join("");
-  const grid = [0, 25, 50, 75, 100].map((g) => `<line x1="${L}" x2="${W - 10}" y1="${y(g)}" y2="${y(g)}" stroke="#ccc" stroke-dasharray="3 3"/><text x="${L - 4}" y="${y(g) + 3}" font-size="8" text-anchor="end" fill="#666">${g}%</text>`).join("");
-  const months = d.map((r, i) => `<text x="${x(i)}" y="${H - 8}" font-size="8" text-anchor="middle" fill="#444">${esc(r.month)}</text>`).join("");
-  return `<svg viewBox="0 0 ${W} ${H}" width="100%">${grid}${line("planned", "#2563EB")}${line("actual", "#DC2626")}${months}</svg>`;
-};
-
-// រូបថតតាម Link: រូប/OneDrive (ផ្ទាល់ខ្លួន) បង្ហាញជារូបបាន; Telegram និង Link ផ្សេងបើកក្នុង Tab ថ្មី
-const photoSrc = (p) => {
-  if (p.url) return p.url;
-  const u = p.link || "";
-  if (/\.(jpe?g|png|gif|webp|avif)(\?|$)/i.test(u)) return u;
-  if (/1drv\.ms|onedrive\.live\.com/i.test(u)) return "https://api.onedrive.com/v1.0/shares/u!" + btoa(u).replace(/=+$/, "").replace(/\//g, "_").replace(/\+/g, "-") + "/root/content";
-  return "";
-};
-
-// ប៊ូតុង Zoom: បើកក្រាបពេញអេក្រង់; លើទូរស័ព្ទមានប៊ូតុង Rotate (បង្វិលពេញអេក្រង់)
-function ZoomWrap({ title, children }) {
-  const [open, setOpen] = useState(false);
-  const [rot, setRot] = useState(false);
-  const enter = async () => { setOpen(true); try { await document.documentElement.requestFullscreen(); await screen.orientation.lock("landscape"); } catch (e) {} };
-  const leave = () => { setOpen(false); setRot(false); try { screen.orientation.unlock(); if (document.fullscreenElement) document.exitFullscreen(); } catch (e) {} };
-  const bar = (
-    <div className="flex items-center justify-between gap-2 mb-2">
-      <b className="text-sm uppercase">{title}</b>
-      <div className="flex gap-2">
-        <button onClick={() => setRot(!rot)} className="px-3 py-1 rounded border border-inherit text-xs font-bold lg:hidden">↻ Rotate</button>
-        <button onClick={leave} className="px-3 py-1 rounded bg-rose-600 text-white text-xs font-bold">✕ Close</button>
-      </div>
-    </div>
-  );
-  return (
-    <>
-      <div className="flex justify-end mb-1"><button onClick={enter} className="px-2 py-0.5 rounded border border-inherit text-[11px] font-bold">⛶ Zoom</button></div>
-      {children}
-      {open && (
-        <div className="fixed inset-0 z-[60] bg-white dark:bg-[#0A0A0A] text-[#111827] dark:text-white overflow-auto">
-          {rot
-            ? <div style={{ position: "absolute", top: 0, left: "100vw", width: "100vh", height: "100vw", transform: "rotate(90deg)", transformOrigin: "top left", padding: 12, overflow: "auto" }}>{bar}{children}</div>
-            : <div className="p-3 sm:p-6 max-w-7xl mx-auto">{bar}{children}</div>}
-        </div>
-      )}
-    </>
-  );
-}
-
-// រូបថតសំណង់ និង Drone: បន្ថែមតាម Link (OneDrive / Telegram) + Caption, ច្រើនបំផុត ១៥ រូប
-function DroneGallery({ images, title, canEdit, onChange }) {
-  const [index, setIndex] = useState(0);
-  const [playing, setPlaying] = useState(true);
-  const [broken, setBroken] = useState({});
-  const n = images.length;
-  useEffect(() => {
-    if (!playing || n < 2) return;
-    const timer = setInterval(() => setIndex((i) => (i + 1) % n), 4000);
-    return () => clearInterval(timer);
-  }, [playing, n]);
-  const k = n ? index % n : 0, cur = images[k], src = cur ? photoSrc(cur) : "";
-  const add = () => {
-    if (n >= 15) return alert("Maximum 15 photos. Delete one first.");
-    const link = (prompt("Paste share link (OneDrive / Telegram / image URL):") || "").trim();
-    if (!link) return;
-    const caption = prompt("Caption (what / where / when):") || "";
-    onChange([...images, { link, caption }]); setIndex(n);
-  };
-  const edit = () => { const c = prompt("Edit caption:", cur.caption || ""); if (c !== null) onChange(images.map((p, i) => (i === k ? { ...p, caption: c } : p))); };
-  const del = () => { if (confirm("Delete this photo?")) { onChange(images.filter((_, i) => i !== k)); setIndex(0); } };
-  const btn = "p-1 rounded border border-inherit hover:bg-slate-200 dark:hover:bg-slate-800";
-  const link = cur && (cur.link || cur.url);
-  return (
-    <div>
-      <CardTitle icon="Image" right={
-        <div className="flex items-center gap-1">
-          {canEdit && <button onClick={add} className="px-2 py-0.5 rounded bg-emerald-600 text-white text-[10px] font-bold">+ Link ({n}/15)</button>}
-          <button className={btn} onClick={() => setIndex((i) => (i - 1 + n) % n)}><Icon name="ChevronLeft" size={14} /></button>
-          <button className={btn} onClick={() => setIndex((i) => (i + 1) % n)}><Icon name="ChevronRight" size={14} /></button>
-          <button className={btn} onClick={() => setPlaying(!playing)}><Icon name={playing ? "Pause" : "Play"} size={14} /></button>
-        </div>
-      }>{title}</CardTitle>
-      {cur ? (
-        <>
-          <div className="relative rounded-md overflow-hidden aspect-video border border-inherit bg-slate-100 dark:bg-slate-900">
-            {src && !broken[src]
-              ? <img src={src} alt={cur.caption || "Site photo"} className="w-full h-full object-cover" onError={() => setBroken({ ...broken, [src]: true })} />
-              : <div className="w-full h-full flex flex-col items-center justify-center gap-1 text-xs text-slate-500"><span className="text-2xl">🔗</span><span>Preview not available</span></div>}
-            <div className="absolute bottom-0 inset-x-0 px-3 pt-10 pb-2.5 bg-gradient-to-t from-black/70 via-black/30 to-transparent text-white text-[12px] font-bold flex items-end justify-between gap-2">
-              <span className="truncate" style={{ textShadow: "0 1px 4px rgba(0,0,0,.85)" }}>{cur.caption}</span>
-              <span className="shrink-0 font-mono text-[10px] px-2 py-0.5 rounded-full bg-white/20 border border-white/30">{k + 1} / {n}</span>
-            </div>
-          </div>
-          <div className="flex items-center justify-between mt-1.5 text-[11px]">
-            {link ? <a href={link} target="_blank" rel="noreferrer" className="text-blue-600 font-bold">Open original ↗</a> : <span />}
-            {canEdit && <div className="flex gap-2"><button onClick={edit} className="font-bold text-blue-600">✎ Caption</button><button onClick={del} className="font-bold text-rose-600">🗑 Delete</button></div>}
-          </div>
-        </>
-      ) : <div className="text-xs text-slate-500 py-6 text-center">No photos yet. Press “+ Link”.</div>}
-    </div>
-  );
-}
-
 function App() {
   /* ---------- ក. State (ទិន្នន័យដែលផ្លាស់ប្តូរបាន) ---------- */
   const [lang, setLang] = useState("en");               // ភាសា: "en" ឬ "km"
@@ -1432,7 +1326,6 @@ function App() {
   const [modal, setModal] = useState(null);             // Popup ដែលកំពុងបើក: "login" | "permissions" | "upload" | "editDash" | null
   const [accessDenied, setAccessDenied] = useState(false); // បង្ហាញបដាក្រហម "ហាមឃាត់"
   const [sidebarOpen, setSidebarOpen] = useState(() => window.innerWidth >= 1024); // Sidebar: Desktop បើក, ទូរស័ព្ទ/Tablet បិទជាមុន
-  const [reportSize, setReportSize] = useState("A4"); // ទំហំក្រដាស Report: A4 ឬ A3
 
   const [users, setUsers] = useState(sb ? [] : INITIAL_USERS);
   const [currentUser, setCurrentUser] = useState(sb ? GUEST : INITIAL_USERS[0]);
@@ -1696,29 +1589,6 @@ function App() {
   };
 
   // បើក Form កែប្រែ Dashboard (ចម្លងតម្លៃបច្ចុប្បន្នមកកែ)
-  // Daily Report: បើក Tab ថ្មីសម្រាប់ Print / Save as PDF (A4 ឬ A3)
-  const printDailyReport = async (size) => {
-    const w = window.open("", "_blank");
-    if (!w) return alert("Please allow pop-ups to print.");
-    let wx = "n/a";
-    try {
-      const r = await (await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${LAT}&longitude=${LON}&current=temperature_2m,relative_humidity_2m,wind_speed_10m&timezone=Asia%2FBangkok`)).json();
-      wx = `${Math.round(r.current.temperature_2m)}°C | Humidity ${r.current.relative_humidity_2m}% | Wind ${Math.round(r.current.wind_speed_10m)} km/h`;
-    } catch (e) {}
-    const tbl = (head, rows) => `<table><tr>${head.map((x) => `<th>${x}</th>`).join("")}</tr>${rows.map((r) => `<tr>${r.map((c) => `<td>${esc(c)}</td>`).join("")}</tr>`).join("")}</table>`;
-    const box = (a, b, c = "") => `<div class="box"><div>${a}</div><div class="big">${b}</div><div>${c}</div></div>`;
-    const body =
-      `<h2>Overall Project Progress</h2><div class="grid">${box("Overall Progress", completePct + "%", "Remaining " + (100 - completePct) + "%")}${box("Day Elapsed", daysElapsed + " / " + totalDays, "Remaining " + remainingDays + " days")}${box("RFI / RFA", countType("RFI Folder", "RFI") + " / " + countType("RFA Folder", "RFA"))}${box("SI / NCR", countType("SI Folder", "SI") + " / " + countType("NCR Folder", "NCR"))}</div>` +
-      `<h2>S-Curve Progress</h2>${scurveSvg(sCurve)}` +
-      `<h2>Machinery Inventory Daily (TIAC)</h2>${tbl(["Item", "Qty"], (data.machinery || []).map((m) => [m.name || m.title, m.qty]))}` +
-      `<h2>Manpower Headcount Daily (TIAC)</h2>${tbl(["Position", "Qty"], (data.manpower || []).map((m) => [m.name || m.title, m.qty]))}` +
-      `<h2>Weekly Manpower Performance</h2>${tbl(["Week", "Date range", "Workers", "Machinery"], (data.weekly || []).map((x) => [x.week, x.dateRange, x.worker, x.machinery]))}` +
-      `<h2>Master Schedule Milestones In Progress</h2>${tbl(["Work item", "Start", "End", "Plan %", "Actual %"], (data.milestones || []).map((x) => [x.title, x.startDate, x.endDate, x.planned, x.actual]))}` +
-      `<h2>Project Location &amp; Weather</h2><div>${esc(PROJECT_ADDRESS)} (${LAT}, ${LON})<br>${esc(wx)}</div>` +
-      `<h2>Real Site Photo &amp; Drone Inspection</h2><div class="photos">${photos.map((p) => `<div class="ph">${photoSrc(p) ? `<img src="${photoSrc(p)}">` : `<div style="height:130px;display:flex;align-items:center;justify-content:center;background:#eee">Photo link</div>`}<div>${esc(p.caption)}</div></div>`).join("")}</div>`;
-    printDoc("Daily Report", body, size, w);
-  };
-
   const openEditDash = () => {
     setEditForm({ dates: { ...dates }, sCurve: sCurve.map((d) => ({ ...d })), trackers: { ...trackerManual } });
     setModal("editDash");
@@ -1827,12 +1697,6 @@ function App() {
           className={`px-3 py-1.5 rounded-md text-xs font-bold border ${isAdmin ? "bg-blue-600 border-blue-600 text-white" : "bg-amber-500/10 border-amber-500/30 text-amber-600"}`}>
           {isAdmin ? t.adminRole : role === "staff" ? t.staffRole : t.viewerRole}
         </button>
-        {activeTab === "dashboard" && (
-          <div className="flex items-center gap-1">
-            <select value={reportSize} onChange={(e) => setReportSize(e.target.value)} className="px-1.5 py-1.5 rounded-md border border-inherit bg-transparent text-xs font-bold"><option>A4</option><option>A3</option></select>
-            <button onClick={() => printDailyReport(reportSize)} className="px-3 py-1.5 rounded-md text-xs font-bold bg-slate-700 text-white">🖨 Daily Report (PDF)</button>
-          </div>
-        )}
         {canEditData && <button onClick={openEditDash} className="px-3 py-1.5 rounded-md text-xs font-bold bg-emerald-600 text-white hover:bg-emerald-700">{t.editDashData}</button>}
         <button onClick={() => setLang(isKm ? "en" : "km")} className="px-2.5 py-1.5 rounded-md text-xs font-bold border border-inherit">{isKm ? "EN" : "ខ្មែរ (KM)"}</button>
         <button onClick={() => setTheme(theme === "light" ? "dark" : "light")} className="p-1.5 rounded-md border border-inherit">
@@ -1916,7 +1780,7 @@ function App() {
               <span className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-rose-500/10 text-rose-700 dark:text-rose-300"><i className="w-2 h-2 rounded-full bg-[#E11D48]" />Actual</span>
             </div>
           }>{t.sCurveTitle}</CardTitle>
-          <ZoomWrap title="S-Curve Progress"><SCurveChart data={sCurve} /></ZoomWrap>
+          <SCurveChart data={sCurve} />
         </Card>
 
         {/* បញ្ជីគ្រឿងចក្រ និងបុគ្គលិក (រចនាដូចគ្នា ប្រើ loop ម្តង; ប៊ូតុង Edit សម្រាប់ Admin/Staff ដែលបានអនុញ្ញាត) */}
@@ -1985,7 +1849,14 @@ function App() {
         </Card>
 
         <Card className="lg:col-span-4 space-y-4">
-          <DroneGallery images={photos} title={t.droneGalleryTitle} canEdit={canEditData} onChange={setPhotos} />
+          <DroneGallery images={photos} title={t.droneGalleryTitle} uploadLabel={t.photoBtn}
+            onUpload={canEditData ? async (e) => {
+              const files = [...e.target.files].slice(0, 10);            // យកអតិបរមា 10 រូប
+              if (!files.length) return;
+              const cropped = await Promise.all(files.map(async (f) => ({ url: await cropImage(f), caption: f.name.replace(/\.[^.]+$/, "") })));
+              setPhotos(cropped);                                        // ជំនួសរូបចាស់ទាំងអស់
+              e.target.value = "";
+            } : null} />
           {/* អាកាសធាតុពិត: ថ្ងៃនេះ + ម៉ោងបន្ទាប់ + ៥ ថ្ងៃខាងមុខ */}
           <WeatherWidget t={t} isKm={isKm} />
           {/* ផែនទី Google Maps ពីអាសយដ្ឋានគម្រោង */}
